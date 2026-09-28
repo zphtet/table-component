@@ -27,7 +27,7 @@ export const Demo = () => {
                 expandKey="attendees"
                 renderExpandUI={(value) => {
                     // return <div> {JSON.stringify(value)}</div>;
-                    return <Table columns={attendeeColumns} data={value.value} />;
+                    return <Table columns={attendeeColumns} data={value.value as Attendee[]} />;
                 }}
             />
         </div>

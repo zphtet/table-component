@@ -34,8 +34,8 @@ export type TableProps<T, K extends keyof T> = {
     sorting?: SortingProps;
 
     // expansion
-    expandKey: keyof T;
-    renderExpandUI: (props: { value: T[K] }) => ReactNode;
+    expandKey?: keyof T;
+    renderExpandUI?: (props: { value: T[K] }) => ReactNode;
 };
 
 export type BasePagination = {
