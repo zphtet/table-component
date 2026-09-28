@@ -1,7 +1,7 @@
-import { delay, http, HttpResponse } from "msw";
+import { http, HttpResponse } from "msw";
 import type { Attendee, FitnessClass } from "@/types/data.types";
 import { db } from "./db";
-import { paginate, parseListQuery, sortItems } from "./utils";
+import { paginate, parseListQuery, shouldReturnEmpty, simulateNetwork, sortItems } from "./utils";
 
 const classSortFields = [
     "id",
@@ -31,11 +31,14 @@ export const handlers = [
      * Classes without their attendee lists; fetch those per class below.
      */
     http.get("/api/classes", async ({ request }) => {
-        // Realistic network latency (100–400ms), so loading states are visible
-        await delay();
+        // Latency and simulated failures, set from the Network panel in the header
+        const failure = await simulateNetwork("classes");
+        if (failure) return failure;
         const query = parseListQuery(new URL(request.url), classSortFields);
         if ("error" in query) return badRequest(query.error);
 
+        if (shouldReturnEmpty("classes"))
+            return HttpResponse.json(paginate([], query.page, query.size));
         const sorted = sortItems(db.classes, query.sorts);
         return HttpResponse.json(paginate(sorted, query.page, query.size));
     }),
@@ -45,7 +48,8 @@ export const handlers = [
      * Try fc-001 (many attendees), fc-002 (a few), fc-003 (none) and fc-006 (full).
      */
     http.get("/api/classes/:classId/attendees", async ({ request, params }) => {
-        await delay();
+        const failure = await simulateNetwork("attendees");
+        if (failure) return failure;
         const classId = String(params.classId);
         const attendees = db.attendeesByClassId.get(classId);
         if (!attendees) {
@@ -54,6 +58,9 @@ export const handlers = [
         const query = parseListQuery(new URL(request.url), attendeeSortFields);
         if ("error" in query) return badRequest(query.error);
 
+        if (shouldReturnEmpty("attendees")) {
+            return HttpResponse.json(paginate([], query.page, query.size));
+        }
         const sorted = sortItems(attendees, query.sorts);
         return HttpResponse.json(paginate(sorted, query.page, query.size));
     }),

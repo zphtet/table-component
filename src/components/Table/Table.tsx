@@ -55,6 +55,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         sorts: sortingProps?.sorts ?? [],
         onChangeSort: sortingProps?.onChangeSort,
         isMultiple: sortingProps?.isMultiple,
+        manualSorting: sortingProps?.manual,
     });
 
     return (
@@ -102,7 +103,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                 />
                             );
                         })}
-                        {rows.length === 0 && (
+                        {!isLoading && rows.length === 0 && (
                             <tr>
                                 <td colSpan={columns.length} className="h-32 px-3 py-6">
                                     <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">

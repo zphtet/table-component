@@ -104,6 +104,7 @@ export type SortingProps = {
     sorts: Sort[];
     onChangeSort?: (sort: Sort[]) => void;
     isMultiple?: boolean;
+    manual?: boolean;
 };
 
 export type UseSortingOptions = SortingProps;
@@ -112,5 +113,6 @@ export type UseTableOptions<T> = UsePaginationOptions &
     UseSortingOptions & {
         columns: ColumnDef<T>[];
         manualPagination?: boolean;
+        manualSorting?: boolean;
         data: T[];
     };

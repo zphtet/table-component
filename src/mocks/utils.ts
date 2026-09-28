@@ -1,5 +1,54 @@
+import { delay, HttpResponse } from "msw";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { Sort } from "@/types/table.types";
+import {
+    affects,
+    getNetworkSettings,
+    RANDOM_FAILURE_RATE,
+    type Endpoint,
+    type Latency,
+} from "./networkSettings";
+
+const latencyMs: Record<Exclude<Latency, "realistic">, number> = {
+    instant: 0,
+    slow: 1500,
+    "very-slow": 5000,
+};
+
+/**
+ * Applies the header's network settings to a request: waits for the chosen latency, then returns a
+ * failure response if the request should fail. Returns `undefined` when the handler should go on.
+ * Endpoints the settings don't target get the default realistic latency and never fail.
+ */
+export const simulateNetwork = async (endpoint: Endpoint): Promise<Response | undefined> => {
+    const settings = getNetworkSettings();
+    if (!affects(settings, endpoint)) {
+        await delay();
+        return;
+    }
+
+    // `delay()` with no argument is MSW's realistic 100–400ms
+    await (settings.latency === "realistic" ? delay() : delay(latencyMs[settings.latency]));
+
+    // Like a dropped connection: fetch rejects with a TypeError instead of getting a response
+    if (settings.errorMode === "network") return HttpResponse.error();
+
+    const fails =
+        settings.errorMode === "always" ||
+        (settings.errorMode === "random" && Math.random() < RANDOM_FAILURE_RATE);
+    if (fails) {
+        return HttpResponse.json(
+            { message: "Simulated server error (turn it off in the header's Network panel)" },
+            { status: 500 },
+        );
+    }
+};
+
+/** Whether the header's "Empty results" setting applies to this endpoint */
+export const shouldReturnEmpty = (endpoint: Endpoint) => {
+    const settings = getNetworkSettings();
+    return settings.empty && affects(settings, endpoint);
+};
 
 const DEFAULT_SIZE = 10;
 const MAX_SIZE = 100;
