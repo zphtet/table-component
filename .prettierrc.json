@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/prettierrc",
+  "semi": true,
+  "singleQuote": false,
+  "tabWidth": 4,
+  "printWidth": 100,
+  "trailingComma": "all",
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindStylesheet": "./src/index.css",
+  "tailwindFunctions": ["cn"],
+  "overrides": [
+    {
+      "files": ["*.json", "*.md", "*.yml"],
+      "options": {
+        "tabWidth": 2
+      }
+    }
+  ]
+}
