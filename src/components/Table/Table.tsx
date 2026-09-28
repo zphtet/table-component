@@ -1,10 +1,9 @@
-import type { BasePagination, ColumnDef, SortingProps, TableProps } from "@/types/table.types";
+import type { BasePagination, ColumnDef, TableProps } from "@/types/table.types";
 import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
-import { usePagination } from "./hooks/usePagination";
-import { sortRows, toCss } from "./utils";
-import { useSorting } from "./hooks/useSorting";
+import { useTable } from "./hooks/useTable";
+import { toCss } from "./utils";
 
 /** Sum of fixed widths + flexible columns' minWidths, so the table scrolls instead of squashing columns. */
 const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
@@ -21,26 +20,25 @@ const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
 };
 
 const Table = <T extends object>(props: TableProps<T>) => {
-    const { ariaLabel, columns, data, pagination } = props;
+    const { ariaLabel, columns, data, pagination, sorting: sortingProps } = props;
     const {
-        pagination: newPagination,
+        rows,
+        pagination: paginationState,
         setPage,
         setSize,
-    } = usePagination({
+        sorting,
+        onClickSort,
+    } = useTable({
+        columns,
+        data,
+        // pagination
         pagination: pagination?.pagination as BasePagination,
         onChangeHandler: pagination?.onChangeHandler,
+        // sorting
+        sorts: sortingProps?.sorts ?? [],
+        onChangeSort: sortingProps?.onChangeSort,
+        isMultiple: sortingProps?.isMultiple,
     });
-
-    const { onClickSort, sorting } = useSorting(props?.sorting as SortingProps);
-
-    console.log("sorting", sorting);
-
-    const { page, size, total } = newPagination;
-    const start = (page - 1) * size;
-    const end = start + size;
-    // Sort the full data first, then slice, so sorting applies across all pages
-    const sortedRows = sortRows(data, sorting ?? [], columns);
-    const updatedRows = sortedRows.slice(start, end);
 
     return (
         <div className="w-full">
@@ -73,7 +71,7 @@ const Table = <T extends object>(props: TableProps<T>) => {
                     </thead>
 
                     <tbody>
-                        {updatedRows.map((row, rowIndex) => {
+                        {rows.map((row, rowIndex) => {
                             const rowKey = "id" in row ? String(row.id) : rowIndex;
                             return <TableRow key={rowKey} row={row} columns={columns} />;
                         })}
@@ -82,7 +80,7 @@ const Table = <T extends object>(props: TableProps<T>) => {
             </div>
             {pagination && (
                 <Pagination
-                    pagination={newPagination}
+                    pagination={paginationState}
                     onPageChange={setPage}
                     onSizeChange={setSize}
                     pageSizeOptions={pagination?.pageSizeOptions}

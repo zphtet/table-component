@@ -80,3 +80,9 @@ export type SortingProps = {
 };
 
 export type UseSortingOptions = SortingProps;
+
+export type UseTableOptions<T> = UsePaginationOptions &
+    UseSortingOptions & {
+        columns: ColumnDef<T>[];
+        data: T[];
+    };
