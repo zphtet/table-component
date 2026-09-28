@@ -1,12 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import Table from "@/components/Table/Table";
 import { columns } from "../Demo/columns";
+import type { BasePagination } from "@/types/table.types";
+import { useState } from "react";
 export const ServerSideDemo = () => {
+    // page and size are ours; total comes from the server response
+    const [pagination, setPagination] = useState({ page: 1, size: 10 });
+
     const { data, isLoading, refetch, isError } = useQuery({
-        queryKey: ["classes"],
+        // A new page or size is a new query, so it gets fetched (and cached) separately
+        queryKey: ["classes", pagination.page, pagination.size],
         queryFn: async () => {
             try {
-                const res = await fetch("/api/classes");
+                const res = await fetch(
+                    `/api/classes?page=${pagination.page}&size=${pagination.size}`,
+                );
                 const data = await res.json();
                 return data;
             } catch (e) {
@@ -25,10 +33,19 @@ export const ServerSideDemo = () => {
                 isError={isError}
                 isLoading={isLoading}
                 onRetry={refetch}
+                skeletonRows={pagination?.size}
                 pagination={{
-                    pagination: data?.pagination,
+                    pagination: { ...pagination, total: data?.pagination.total ?? 0 },
+                    onChangeHandler: ({ page, size }: BasePagination) =>
+                        setPagination({ page, size }),
                     pageSizeOptions: [5, 10, 20],
+                    manual: true,
                 }}
+
+                // sorting={{
+                //     sorts: [],
+
+                // }}
             />
         </div>
     );

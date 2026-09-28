@@ -28,7 +28,7 @@ export type TableProps<T, K extends keyof T> = {
     columns: ColumnDef<T>[];
     data: T[];
     ariaLabel?: string;
-    /** Renders the pagination bar under the table. The table shows `data` as-is, so pass only the current page's rows. */
+    /** Renders the pagination bar under the table and pages through `data` (see `manual` for server-side paging). */
     pagination?: PaginationProps;
     // sorting
     sorting?: SortingProps;
@@ -58,6 +58,11 @@ export type PaginationProps = {
     pagination: BasePagination;
     onChangeHandler?: (value: BasePagination) => void;
     pageSizeOptions?: number[];
+    /**
+     * Server-side paging: `data` is already the current page, so the table shows it as-is instead of
+     * slicing it. Pair with `onChangeHandler` to fetch the new page, and pass the server's `total`.
+     */
+    manual?: boolean;
 };
 
 export type PaginationComponentProps = {
@@ -67,12 +72,18 @@ export type PaginationComponentProps = {
     pageSizeOptions?: number[];
 };
 
-export type UsePaginationOptions = Omit<PaginationProps, "pageSizeOptions">;
+export type UsePaginationOptions = Omit<PaginationProps, "pageSizeOptions" | "manual">;
 
 export type TableHeaderCellProps<T> = {
     column: ColumnDef<T>;
     onClickSort: (id: string) => void;
     sorts: Sort[];
+};
+
+export type TableSkeletonProps<T> = {
+    columns: ColumnDef<T>[];
+    /** How many placeholder rows to show. Match the page size so the table doesn't jump when data arrives. */
+    rows?: number;
 };
 
 export type TableRowProps<T, K extends keyof T> = {
@@ -100,5 +111,6 @@ export type UseSortingOptions = SortingProps;
 export type UseTableOptions<T> = UsePaginationOptions &
     UseSortingOptions & {
         columns: ColumnDef<T>[];
+        manualPagination?: boolean;
         data: T[];
     };

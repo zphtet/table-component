@@ -11,7 +11,6 @@ export const usePagination = (props: UsePaginationOptions) => {
         setValue({ ...value, page: pageNum });
     };
     const setSize = (size: number) => {
-        console.log("setSize", size);
         setValue({ ...value, size: size, page: 1 });
     };
     return {
