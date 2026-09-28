@@ -1,13 +1,19 @@
 import type { Sort, TableHeaderCellProps } from "@/types/table.types";
-import { LuArrowDown, LuArrowUp, LuArrowUpDown } from "react-icons/lu";
-import { alignClass, cn } from "./utils";
+import { LuArrowDown, LuArrowUp, LuChevronsUpDown } from "react-icons/lu";
+import { alignClass, cn, focusRing } from "./utils";
 
-/** Each click cycles normal → asc → desc → normal. */
+const ariaSort = { asc: "ascending", desc: "descending" } as const;
 
 const SortIcon = ({ direction }: { direction: Sort["direction"] | undefined }) => {
     if (direction === "asc") return <LuArrowUp aria-hidden className="size-3.5 shrink-0" />;
     if (direction === "desc") return <LuArrowDown aria-hidden className="size-3.5 shrink-0" />;
-    return <LuArrowUpDown aria-hidden className="size-3.5 shrink-0 opacity-40" />;
+    // Unsorted: faint until the header is hovered
+    return (
+        <LuChevronsUpDown
+            aria-hidden
+            className="size-3.5 shrink-0 opacity-30 transition-opacity group-hover:opacity-100"
+        />
+    );
 };
 
 export const TableHeaderCell = <T extends object>({
@@ -20,8 +26,15 @@ export const TableHeaderCell = <T extends object>({
     return (
         <th
             scope="col"
+            aria-sort={
+                column.sortable
+                    ? currentDirection
+                        ? ariaSort[currentDirection]
+                        : "none"
+                    : undefined
+            }
             className={cn(
-                "truncate px-3 py-2 align-bottom text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400",
+                "h-10 truncate px-4 align-middle text-xs font-medium text-gray-500 dark:text-gray-400",
                 alignClass[column.align ?? "left"],
                 column.headerClassName,
             )}
@@ -30,7 +43,13 @@ export const TableHeaderCell = <T extends object>({
                 <button
                     type="button"
                     onClick={() => onClickSort?.(column.id)}
-                    className="inline-flex max-w-full cursor-pointer items-center gap-1 uppercase hover:text-gray-900 dark:hover:text-gray-100"
+                    className={cn(
+                        "group -mx-1 inline-flex max-w-[calc(100%+0.5rem)] cursor-pointer items-center gap-1 rounded px-1 py-0.5 transition-colors hover:text-gray-900 dark:hover:text-gray-100",
+                        // Right-aligned columns put the icon on the left so the labels line up with the numbers
+                        column.align === "right" && "flex-row-reverse",
+                        currentDirection && "text-gray-900 dark:text-gray-100",
+                        focusRing,
+                    )}
                 >
                     <span className="truncate">{column.header}</span>
                     <SortIcon direction={currentDirection} />

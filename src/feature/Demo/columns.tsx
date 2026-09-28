@@ -8,9 +8,11 @@ const formatTime = (date: Date) =>
     date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
 const statusStyles: Record<ClassStatus, string> = {
-    Scheduled: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    Full: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
-    Cancelled: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
+    Scheduled:
+        "bg-blue-100 text-blue-700 ring-1 ring-blue-600/20 ring-inset dark:bg-blue-900/40 dark:text-blue-300 dark:ring-blue-400/20",
+    Full: "bg-amber-100 text-amber-700 ring-1 ring-amber-600/20 ring-inset dark:bg-amber-900/40 dark:text-amber-300 dark:ring-amber-400/20",
+    Cancelled:
+        "bg-red-100 text-red-700 ring-1 ring-red-600/20 ring-inset dark:bg-red-900/40 dark:text-red-300 dark:ring-red-400/20",
 };
 
 export const columns: ColumnDef<FitnessClass>[] = [
@@ -68,7 +70,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         header: "Capacity",
         sortable: true,
         align: "right",
-        width: 90,
+        width: 110,
         dataKey: "capacity",
         cellClassName: "tabular-nums",
     },
@@ -78,7 +80,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         header: "Booked",
         sortable: true,
         align: "right",
-        width: 90,
+        width: 110,
         dataKey: "attendeeCount",
         cellClassName: "tabular-nums",
         cell: ({ value, row }) => `${value} / ${row.capacity}`,
@@ -91,7 +93,9 @@ export const columns: ColumnDef<FitnessClass>[] = [
         width: 110,
         dataKey: "status",
         cell: ({ value }) => (
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[value]}`}>
+            <span
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[value]}`}
+            >
                 {value}
             </span>
         ),

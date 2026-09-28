@@ -1,4 +1,6 @@
-import type { PaginationComponentProps, PaginationProps } from "@/types/table.types";
+import type { PaginationComponentProps } from "@/types/table.types";
+import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
+import { focusRing } from "./utils";
 
 type PageItem = number | "ellipsis";
 
@@ -18,10 +20,9 @@ const getPageItems = (page: number, pageCount: number): PageItem[] => {
     return items;
 };
 
-const buttonClass =
-    "h-8 min-w-8 rounded-md border px-3 text-sm transition-colors disabled:cursor-not-allowed";
+const buttonClass = `inline-flex h-8 min-w-8 cursor-pointer items-center justify-center gap-1 rounded-md border px-2.5 text-sm transition-colors disabled:cursor-not-allowed ${focusRing}`;
 const idleClass =
-    "border-gray-200 bg-white text-gray-900 hover:bg-gray-50 disabled:text-gray-400 disabled:hover:bg-white dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:bg-gray-900 dark:disabled:text-gray-600";
+    "border-gray-200 bg-white text-gray-700 shadow-xs hover:bg-gray-50 disabled:text-gray-300 disabled:shadow-none disabled:hover:bg-white dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300 dark:hover:bg-gray-900 dark:disabled:text-gray-700";
 const activeClass =
     "border-gray-900 bg-gray-900 font-medium text-white dark:border-gray-100 dark:bg-gray-100 dark:text-gray-900";
 
@@ -39,10 +40,14 @@ export const Pagination = ({
     const goTo = (next: number) => onPageChange?.(Math.min(Math.max(next, 1), pageCount));
 
     return (
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-3 py-3 text-sm text-gray-600 dark:border-gray-800 dark:text-gray-400">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
             <div className="flex items-center gap-4">
-                <p>
-                    Showing {start}–{end} of {total}
+                <p className="tabular-nums">
+                    Showing{" "}
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {start}–{end}
+                    </span>{" "}
+                    of <span className="font-medium text-gray-900 dark:text-gray-100">{total}</span>
                 </p>
 
                 {onSizeChange && (
@@ -53,7 +58,7 @@ export const Pagination = ({
                             onChange={(e) => {
                                 onSizeChange(Number(e.target.value));
                             }}
-                            className="h-8 rounded-md border border-gray-200 bg-white px-2 text-gray-900 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100"
+                            className={`h-8 cursor-pointer rounded-md border border-gray-200 bg-white px-2 text-gray-900 shadow-xs dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 ${focusRing}`}
                         >
                             {pageSizeOptions.map((size) => (
                                 <option key={size} value={size}>
@@ -72,6 +77,7 @@ export const Pagination = ({
                     disabled={page <= 1}
                     onClick={() => goTo(page - 1)}
                 >
+                    <LuChevronLeft aria-hidden className="size-4" />
                     Prev
                 </button>
 
@@ -101,6 +107,7 @@ export const Pagination = ({
                     onClick={() => goTo(page + 1)}
                 >
                     Next
+                    <LuChevronRight aria-hidden className="size-4" />
                 </button>
             </nav>
         </div>

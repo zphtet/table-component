@@ -18,7 +18,11 @@ export const renderCell = <T extends object>(col: ColumnDef<T>, row: T): ReactNo
 
 export const cn = (...classes: (string | false | undefined)[]) => classes.filter(Boolean).join(" ");
 
-export const alignClass = { left: "text-left", center: "text-center", right: "text-right" } as const;
+export const alignClass = {
+    left: "text-left",
+    center: "text-center",
+    right: "text-right",
+} as const;
 
 export const toCss = (size: number | string) => (typeof size === "number" ? `${size}px` : size);
 
@@ -54,3 +58,7 @@ export const sortRows = <T extends object>(rows: T[], sorts: Sort[], columns: Co
         return 0;
     });
 };
+
+/** Keyboard focus ring. Inset, so it isn't clipped inside truncating (overflow-hidden) cells. */
+export const focusRing =
+    "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500";

@@ -50,7 +50,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
     });
 
     return (
-        <div className="w-full">
+        <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div className="w-full overflow-x-auto">
                 <table
                     aria-label={ariaLabel}
@@ -67,7 +67,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     </colgroup>
 
                     <thead>
-                        <tr className="border-b border-gray-200 dark:border-gray-800">
+                        <tr className="border-b border-gray-200 bg-gray-50/80 dark:border-gray-800 dark:bg-gray-900/50">
                             {columns.map((col) => (
                                 <TableHeaderCell
                                     onClickSort={onClickSort}

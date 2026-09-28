@@ -8,10 +8,13 @@ const formatTime = (date: Date) =>
     date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
 const bookingStatusStyles: Record<BookingStatus, string> = {
-    Booked: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    "Checked-in": "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-    Cancelled: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-    "No-show": "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    Booked: "bg-blue-100 text-blue-700 ring-1 ring-blue-600/20 ring-inset dark:bg-blue-900/40 dark:text-blue-300 dark:ring-blue-400/20",
+    "Checked-in":
+        "bg-green-100 text-green-700 ring-1 ring-green-600/20 ring-inset dark:bg-green-900/40 dark:text-green-300 dark:ring-green-400/20",
+    Cancelled:
+        "bg-red-100 text-red-700 ring-1 ring-red-600/20 ring-inset dark:bg-red-900/40 dark:text-red-300 dark:ring-red-400/20",
+    "No-show":
+        "bg-gray-100 text-gray-700 ring-1 ring-gray-600/20 ring-inset dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-400/20",
 };
 
 export const attendeeColumns: ColumnDef<Attendee>[] = [
@@ -57,7 +60,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
         dataKey: "bookingStatus",
         cell: ({ value }) => (
             <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${bookingStatusStyles[value]}`}
+                className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${bookingStatusStyles[value]}`}
             >
                 {value}
             </span>
