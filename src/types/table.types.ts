@@ -30,6 +30,8 @@ export type TableProps<T> = {
     ariaLabel?: string;
     /** Renders the pagination bar under the table. The table shows `data` as-is, so pass only the current page's rows. */
     pagination?: PaginationProps;
+    // sorting
+    sorting?: SortingProps;
 };
 
 export type BasePagination = {
@@ -53,3 +55,28 @@ export type PaginationComponentProps = {
 };
 
 export type UsePaginationOptions = Omit<PaginationProps, "pageSizeOptions">;
+
+export type TableHeaderCellProps<T> = {
+    column: ColumnDef<T>;
+    onClickSort: (id: string) => void;
+    sorts: Sort[];
+};
+
+export type TableRowProps<T> = {
+    row: T;
+    columns: ColumnDef<T>[];
+};
+
+// sorting types
+
+export type Sort = {
+    columnId: string;
+    direction: "asc" | "desc";
+};
+export type SortingProps = {
+    sorts: Sort[];
+    onChangeSort?: (sort: Sort[]) => void;
+    isMultiple?: boolean;
+};
+
+export type UseSortingOptions = SortingProps;

@@ -7,6 +7,7 @@ export const Demo = () => {
     return (
         <div>
             <p>Demo Testing</p>
+
             <Table
                 ariaLabel="FitnessClass"
                 columns={columns}
@@ -14,6 +15,10 @@ export const Demo = () => {
                 pagination={{
                     pagination: { page: 1, size: 10, total: fitnessClassesData?.length },
                     pageSizeOptions: [3, 5, 10, 20],
+                }}
+                sorting={{
+                    sorts: [],
+                    isMultiple: false,
                 }}
             />
         </div>

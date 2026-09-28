@@ -1,27 +1,10 @@
-import type { ReactNode } from "react";
-import type { BasePagination, ColumnDef, TableProps } from "@/types/table.types";
+import type { BasePagination, ColumnDef, SortingProps, TableProps } from "@/types/table.types";
 import { Pagination } from "./Pagination";
+import { TableHeaderCell } from "./TableHeaderCell";
+import { TableRow } from "./TableRow";
 import { usePagination } from "./hooks/usePagination";
-const formatValue = (value: unknown): ReactNode => {
-    if (value == null) return "—";
-    if (value instanceof Date) return value.toLocaleString();
-    if (typeof value === "object") return JSON.stringify(value);
-    return String(value);
-};
-
-const renderCell = <T extends object>(col: ColumnDef<T>, row: T): ReactNode => {
-    const value = row[col.dataKey];
-    if (col.cell) {
-        return col.cell({ row, value });
-    }
-    return formatValue(value);
-};
-
-const cn = (...classes: (string | false | undefined)[]) => classes.filter(Boolean).join(" ");
-
-const alignClass = { left: "text-left", center: "text-center", right: "text-right" } as const;
-
-const toCss = (size: number | string) => (typeof size === "number" ? `${size}px` : size);
+import { sortRows, toCss } from "./utils";
+import { useSorting } from "./hooks/useSorting";
 
 /** Sum of fixed widths + flexible columns' minWidths, so the table scrolls instead of squashing columns. */
 const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
@@ -48,11 +31,17 @@ const Table = <T extends object>(props: TableProps<T>) => {
         onChangeHandler: pagination?.onChangeHandler,
     });
 
+    const { onClickSort, sorting } = useSorting(props?.sorting as SortingProps);
+
+    console.log("sorting", sorting);
+
     const { page, size, total } = newPagination;
     const start = (page - 1) * size;
     const end = start + size;
-    const updatedRows = data.slice(start, end);
-    console.log("setSize", newPagination);
+    // Sort the full data first, then slice, so sorting applies across all pages
+    const sortedRows = sortRows(data, sorting ?? [], columns);
+    const updatedRows = sortedRows.slice(start, end);
+
     return (
         <div className="w-full">
             <div className="w-full overflow-x-auto">
@@ -72,52 +61,21 @@ const Table = <T extends object>(props: TableProps<T>) => {
 
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-gray-800">
-                            {columns.map((col) => {
-                                return (
-                                    <th
-                                        key={col.id}
-                                        scope="col"
-                                        className={cn(
-                                            "truncate px-3 py-2 align-bottom text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400",
-                                            alignClass[col.align ?? "left"],
-                                            col.headerClassName,
-                                        )}
-                                    >
-                                        {col.header}
-                                    </th>
-                                );
-                            })}
+                            {columns.map((col) => (
+                                <TableHeaderCell
+                                    onClickSort={onClickSort}
+                                    key={col.id}
+                                    sorts={sorting}
+                                    column={col}
+                                />
+                            ))}
                         </tr>
                     </thead>
 
                     <tbody>
                         {updatedRows.map((row, rowIndex) => {
                             const rowKey = "id" in row ? String(row.id) : rowIndex;
-                            return (
-                                <tr
-                                    key={rowKey}
-                                    className="border-b border-gray-100 last:border-0 dark:border-gray-900"
-                                >
-                                    {columns.map((col) => {
-                                        return (
-                                            <td
-                                                key={col.id}
-                                                className={cn(
-                                                    "px-3 py-2 align-top text-gray-900 dark:text-gray-100",
-                                                    // `*:truncate` also truncates direct child elements a custom `cell` renders
-                                                    col.wrap
-                                                        ? "break-words"
-                                                        : "truncate *:truncate",
-                                                    alignClass[col.align ?? "left"],
-                                                    col.cellClassName,
-                                                )}
-                                            >
-                                                {renderCell(col, row)}
-                                            </td>
-                                        );
-                                    })}
-                                </tr>
-                            );
+                            return <TableRow key={rowKey} row={row} columns={columns} />;
                         })}
                     </tbody>
                 </table>
