@@ -43,26 +43,17 @@ export const columns: ColumnDef<FitnessClass>[] = [
     },
 
     {
-        id: "startTime",
-        header: "Start",
+        id: "time",
+        header: "Time",
         sortable: true,
         width: 130,
-        dataKey: "startTime",
+        dataKey: "time",
         cell: ({ value }) => (
             <div>
                 <div>{formatDate(value)}</div>
                 <div className="text-xs text-gray-500">{formatTime(value)}</div>
             </div>
         ),
-    },
-
-    {
-        id: "endTime",
-        header: "End",
-        sortable: true,
-        width: 100,
-        dataKey: "endTime",
-        cell: ({ value }) => formatTime(value),
     },
 
     {

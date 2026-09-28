@@ -4,8 +4,8 @@ export interface FitnessClass {
   name: string
   instructor: string
   room: string
-  startTime: Date
-  endTime: Date
+  /** When the class starts */
+  time: Date
   capacity: number
   attendeeCount: number
   status: ClassStatus
