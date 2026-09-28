@@ -24,7 +24,7 @@ export type ColumnDef<T> = {
     };
 }[keyof T];
 
-export type TableProps<T> = {
+export type TableProps<T, K extends keyof T> = {
     columns: ColumnDef<T>[];
     data: T[];
     ariaLabel?: string;
@@ -32,6 +32,10 @@ export type TableProps<T> = {
     pagination?: PaginationProps;
     // sorting
     sorting?: SortingProps;
+
+    // expansion
+    expandKey: keyof T;
+    renderExpandUI: (props: { value: T[K] }) => ReactNode;
 };
 
 export type BasePagination = {
@@ -62,9 +66,12 @@ export type TableHeaderCellProps<T> = {
     sorts: Sort[];
 };
 
-export type TableRowProps<T> = {
+export type TableRowProps<T, K extends keyof T> = {
     row: T;
     columns: ColumnDef<T>[];
+    renderExpansion?: () => void;
+    expandKey?: keyof T;
+    renderExpandUI?: (props: { value: T[K] }) => ReactNode;
 };
 
 // sorting types

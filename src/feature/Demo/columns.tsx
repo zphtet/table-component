@@ -1,17 +1,17 @@
-import type { ClassStatus, FitnessClass } from "@/types/data.types"
-import type { ColumnDef } from "@/types/table.types"
+import type { ClassStatus, FitnessClass } from "@/types/data.types";
+import type { ColumnDef } from "@/types/table.types";
 
 const formatDate = (date: Date) =>
-    date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })
+    date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
 
 const formatTime = (date: Date) =>
-    date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })
+    date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 
 const statusStyles: Record<ClassStatus, string> = {
     Scheduled: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
     Full: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
     Cancelled: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300",
-}
+};
 
 export const columns: ColumnDef<FitnessClass>[] = [
     {
@@ -20,7 +20,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 200,
         dataKey: "name",
-        pinned : "left",
+        pinned: "left",
         cellClassName: "font-medium",
     },
 
@@ -104,9 +104,11 @@ export const columns: ColumnDef<FitnessClass>[] = [
         dataKey: "attendees",
         cell: ({ value }) =>
             value && value.length > 0 ? (
-                <span title={value.map((a) => a.name).join(", ")}>{value.map((a) => a.name).join(", ")}</span>
+                <span title={value.map((a) => a.name).join(", ")}>
+                    {value.map((a) => a.name).join(", ")}
+                </span>
             ) : (
                 <span className="text-gray-400">No attendees</span>
             ),
     },
-]
+];

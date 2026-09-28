@@ -1,4 +1,5 @@
 import type { BasePagination, ColumnDef, TableProps } from "@/types/table.types";
+import { LuInbox } from "react-icons/lu";
 import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
@@ -19,8 +20,16 @@ const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
     return parts.length ? `calc(${parts.join(" + ")})` : undefined;
 };
 
-const Table = <T extends object>(props: TableProps<T>) => {
-    const { ariaLabel, columns, data, pagination, sorting: sortingProps } = props;
+const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => {
+    const {
+        ariaLabel,
+        columns,
+        data,
+        pagination,
+        sorting: sortingProps,
+        expandKey,
+        renderExpandUI,
+    } = props;
     const {
         rows,
         pagination: paginationState,
@@ -73,8 +82,29 @@ const Table = <T extends object>(props: TableProps<T>) => {
                     <tbody>
                         {rows.map((row, rowIndex) => {
                             const rowKey = "id" in row ? String(row.id) : rowIndex;
-                            return <TableRow key={rowKey} row={row} columns={columns} />;
+                            return (
+                                <TableRow
+                                    key={rowKey}
+                                    row={row}
+                                    columns={columns}
+                                    expandKey={expandKey}
+                                    renderExpandUI={renderExpandUI}
+                                />
+                            );
                         })}
+                        {rows.length === 0 && (
+                            <tr>
+                                <td colSpan={columns.length} className="h-32 px-3 py-6">
+                                    <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
+                                        <LuInbox
+                                            aria-hidden
+                                            className="size-6 text-gray-400 dark:text-gray-500"
+                                        />
+                                        <p className="text-sm">No data found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        )}
                     </tbody>
                 </table>
             </div>
