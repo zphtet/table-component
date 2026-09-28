@@ -36,6 +36,15 @@ export type TableProps<T, K extends keyof T> = {
     // expansion
     expandKey?: keyof T;
     renderExpandUI?: (props: { value: T[K] }) => ReactNode;
+
+    // for server side fetching props
+
+    isLoading?: boolean;
+    isError?: unknown;
+    onRetry?: () => void;
+    renderError?: (error: unknown, retry?: () => void) => ReactNode;
+    emptyState?: ReactNode;
+    skeletonRows?: number;
 };
 
 export type BasePagination = {

@@ -50,8 +50,10 @@ export const columns: ColumnDef<FitnessClass>[] = [
         dataKey: "time",
         cell: ({ value }) => (
             <div>
-                <div>{formatDate(value)}</div>
-                <div className="text-xs text-gray-500">{formatTime(value)}</div>
+                {/* <div>{formatDate(new Date(value))}</div> */}
+                <div>{JSON.stringify(value)}</div>
+                {/* <div className="text-xs text-gray-500">{formatTime(value)}</div> */}
+                <div className="text-xs text-gray-500">{JSON.stringify(value)}</div>
             </div>
         ),
     },
@@ -92,18 +94,16 @@ export const columns: ColumnDef<FitnessClass>[] = [
         ),
     },
 
-    {
-        id: "attendees",
-        header: "Attendees",
-        minWidth: 100,
-        dataKey: "attendees",
-        cell: ({ value }) =>
-            value && value.length > 0 ? (
-                <span title={value.map((a) => a.name).join(", ")}>
-                    {value.map((a) => a.name).join(", ")}
-                </span>
-            ) : (
-                <span className="text-gray-400">No attendees</span>
-            ),
-    },
+    // {
+    //     id: "attendees",
+    //     header: "Attendees",
+    //     minWidth: 100,
+    //     dataKey: "attendees",
+    //     cell: ({ value }) =>
+    //         value && value.length > 0 ? (
+    //             <span>{value.length}</span>
+    //         ) : (
+    //             <span className="text-gray-400">-</span>
+    //         ),
+    // },
 ];

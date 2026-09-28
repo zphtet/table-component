@@ -30,6 +30,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         expandKey,
         renderExpandUI,
     } = props;
+
     const {
         rows,
         pagination: paginationState,
@@ -49,6 +50,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         isMultiple: sortingProps?.isMultiple,
     });
 
+    console.log("pagination state", paginationState);
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div className="w-full overflow-x-auto">
