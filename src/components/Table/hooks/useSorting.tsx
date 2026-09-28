@@ -1,4 +1,4 @@
-import { Sort, UseSortingOptions } from "@/types/table.types";
+import type { Sort, UseSortingOptions } from "@/types/table.types";
 import { useControllableState } from "./useControllableState";
 export const useSorting = (props: UseSortingOptions) => {
     const [storedSorting, setSorting] = useControllableState(props?.sorts, props?.onChangeSort);

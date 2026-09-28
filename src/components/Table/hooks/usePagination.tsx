@@ -1,4 +1,4 @@
-import { UsePaginationOptions } from "@/types/table.types";
+import type { UsePaginationOptions } from "@/types/table.types";
 import { useControllableState } from "./useControllableState";
 const DEFAULT_PAGINATION = { page: 1, size: 10, total: 10 };
 export const usePagination = (props: UsePaginationOptions) => {

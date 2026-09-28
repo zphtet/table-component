@@ -1,4 +1,4 @@
-import { Attendee, BookingStatus, FitnessClass, PaymentType } from "@/types/data.types";
+import type { Attendee, BookingStatus, FitnessClass, PaymentType } from "@/types/data.types";
 
 const attendee = (
     id: string,

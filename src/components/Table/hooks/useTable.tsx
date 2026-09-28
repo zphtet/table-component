@@ -1,4 +1,4 @@
-import { UseTableOptions } from "@/types/table.types";
+import type { UseTableOptions } from "@/types/table.types";
 import { sortRows } from "../utils";
 import { usePagination } from "./usePagination";
 import { useSorting } from "./useSorting";
