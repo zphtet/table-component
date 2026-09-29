@@ -1,5 +1,5 @@
 import type { BasePagination, ColumnDef, TableProps } from "@/types/table.types";
-import { LuInbox } from "react-icons/lu";
+import { LuCircleAlert, LuInbox } from "react-icons/lu";
 import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
@@ -32,9 +32,11 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         renderExpandUI,
         isLoading,
         isError,
+        error,
         onRetry,
         renderError,
         skeletonRows,
+        renderEmpty,
     } = props;
 
     const {
@@ -58,6 +60,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         manualSorting: sortingProps?.manual,
     });
 
+    console.log("render Empty", renderEmpty);
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div className="w-full overflow-x-auto">
@@ -103,18 +106,53 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                 />
                             );
                         })}
-                        {!isLoading && rows.length === 0 && (
+                        {!isLoading && isError && (
                             <tr>
                                 <td colSpan={columns.length} className="h-32 px-3 py-6">
-                                    <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
-                                        <LuInbox
-                                            aria-hidden
-                                            className="size-6 text-gray-400 dark:text-gray-500"
-                                        />
-                                        <p className="text-sm">No data found</p>
-                                    </div>
+                                    {renderError ? (
+                                        renderError(error, onRetry)
+                                    ) : (
+                                        <div
+                                            role="alert"
+                                            className="flex flex-col items-center justify-center gap-2 text-center"
+                                        >
+                                            <LuCircleAlert
+                                                aria-hidden
+                                                className="size-6 text-red-500 dark:text-red-400"
+                                            />
+                                            <p className="text-sm text-gray-700 dark:text-gray-300">
+                                                {error?.message || "Something went wrong"}
+                                            </p>
+                                            {onRetry && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => onRetry()}
+                                                    className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-900"
+                                                >
+                                                    Retry
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
                                 </td>
                             </tr>
+                        )}
+                        {!isLoading && !isError && rows.length === 0 && (
+                            <>
+                                {renderEmpty?.() || (
+                                    <tr>
+                                        <td colSpan={columns.length} className="h-32 px-3 py-6">
+                                            <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
+                                                <LuInbox
+                                                    aria-hidden
+                                                    className="size-6 text-gray-400 dark:text-gray-500"
+                                                />
+                                                <p className="text-sm">No data found</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </>
                         )}
                     </tbody>
                 </table>

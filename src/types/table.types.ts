@@ -40,10 +40,13 @@ export type TableProps<T, K extends keyof T> = {
     // for server side fetching props
 
     isLoading?: boolean;
-    isError?: unknown;
+    isError?: boolean;
+    /** Shown in the error state; pass TanStack Query's `error` */
+    error?: Error | null;
     onRetry?: () => void;
-    renderError?: (error: unknown, retry?: () => void) => ReactNode;
-    emptyState?: ReactNode;
+    /** Replaces the default error message + retry button */
+    renderError?: (error: Error | null | undefined, retry?: () => void) => ReactNode;
+    renderEmpty?: () => ReactNode;
     skeletonRows?: number;
 };
 

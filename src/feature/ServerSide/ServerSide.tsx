@@ -1,6 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import Table from "@/components/Table/Table";
 import { columns } from "../Demo/columns";
+import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
+import type { PaginatedResponse } from "@/types/api.types";
+import type { FitnessClass } from "@/types/data.types";
 import type { BasePagination, Sort } from "@/types/table.types";
 import { useState } from "react";
 import { Attendee } from "./Attendee";
@@ -13,31 +16,23 @@ export const ServerSideDemo = () => {
     const [pagination, setPagination] = useState({ page: 1, size: 10 });
     const [sorts, setSorts] = useState<Sort[]>([]);
 
-    const { data, isLoading, refetch, isError } = useQuery({
+    const { data, isLoading, refetch, isError, error } = useQuery({
         // A new page, size or sort is a new query, so it gets fetched (and cached) separately.
         // TanStack Query compares keys by value, so the sorts array can go in as-is.
         queryKey: ["classes", { ...pagination, sorts }],
-        queryFn: async () => {
-            try {
-                const params = new URLSearchParams({
-                    page: String(pagination.page),
-                    size: String(pagination.size),
-                });
-                if (sorts.length) params.set("sort", toSortParam(sorts));
-                // e.g. /api/classes?page=1&size=10&sort=instructor%3Aasc%2Ctime%3Adesc
-                const res = await fetch(`/api/classes?${params}`);
-                // fetch only rejects on network errors, so turn 4xx/5xx responses into errors too;
-                // otherwise the error body ({ message }) would be used as data and crash the render
-                if (!res.ok) throw new Error(`Failed to load classes (${res.status})`);
-                const data = await res.json();
-                return data;
-            } catch (e) {
-                throw new Error();
-            }
+        queryFn: () => {
+            const params = new URLSearchParams({
+                page: String(pagination.page),
+                size: String(pagination.size),
+            });
+            if (sorts.length) params.set("sort", toSortParam(sorts));
+            // e.g. /api/classes?page=1&size=10&sort=instructor%3Aasc%2Ctime%3Adesc
+            // Throws on network errors and 4xx/5xx, so the backend's message ends up in `error`
+            return fetchJson<PaginatedResponse<FitnessClass>>(`/api/classes?${params}`);
         },
+        retry: retryUnlessClientError,
     });
 
-    console.log("classess data", data);
     return (
         <div className="mx-auto max-w-11/12">
             <Table
@@ -45,6 +40,7 @@ export const ServerSideDemo = () => {
                 data={data?.data || []}
                 columns={columns}
                 isError={isError}
+                error={error}
                 isLoading={isLoading}
                 onRetry={refetch}
                 skeletonRows={pagination?.size}

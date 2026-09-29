@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import Table from "@/components/Table/Table";
+import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { Attendee as AttendeeRow } from "@/types/data.types";
 import type { BasePagination, Sort } from "@/types/table.types";
@@ -24,7 +25,7 @@ export const Attendee = ({ id }: AttendeeProps) => {
     const [pagination, setPagination] = useState({ page: 1, size: 5 });
     const [sorts, setSorts] = useState<Sort[]>([]);
 
-    const { data, isLoading, isError, refetch } = useQuery({
+    const { data, isLoading, isError, error, refetch } = useQuery({
         // Scoped under the class, so each class caches its own attendee pages
         queryKey: ["classes", id, "attendees", { ...pagination, sorts }],
         queryFn: async (): Promise<PaginatedResponse<AttendeeRow>> => {
@@ -34,10 +35,9 @@ export const Attendee = ({ id }: AttendeeProps) => {
             });
             if (sorts.length) params.set("sort", toSortParam(sorts));
 
-            const res = await fetch(`/api/classes/${encodeURIComponent(id)}/attendees?${params}`);
-            // fetch only rejects on network errors, so turn 404/400 responses into errors too
-            if (!res.ok) throw new Error(`Failed to load attendees (${res.status})`);
-            const body: AttendeeResponse = await res.json();
+            const body = await fetchJson<AttendeeResponse>(
+                `/api/classes/${encodeURIComponent(id)}/attendees?${params}`,
+            );
             return {
                 ...body,
                 data: body.data.map((a) => ({ ...a, bookedAt: new Date(a.bookedAt) })),
@@ -46,6 +46,7 @@ export const Attendee = ({ id }: AttendeeProps) => {
         // Keep showing the current page while the next one loads
         // placeholderData: keepPreviousData,
         enabled: Boolean(id),
+        retry: retryUnlessClientError,
     });
 
     return (
@@ -55,6 +56,7 @@ export const Attendee = ({ id }: AttendeeProps) => {
             data={data?.data ?? []}
             isLoading={isLoading}
             isError={isError}
+            error={error}
             onRetry={refetch}
             skeletonRows={pagination.size}
             pagination={{

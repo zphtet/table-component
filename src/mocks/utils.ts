@@ -6,8 +6,15 @@ import {
     getNetworkSettings,
     RANDOM_FAILURE_RATE,
     type Endpoint,
+    type ErrorType,
     type Latency,
 } from "./networkSettings";
+
+const errorMessages: Record<Exclude<ErrorType, "network">, (endpoint: Endpoint) => string> = {
+    400: (endpoint) => `Simulated bad request: invalid query for ${endpoint}`,
+    404: (endpoint) => `Simulated not found: ${endpoint} doesn't exist`,
+    500: () => "Simulated server error",
+};
 
 const latencyMs: Record<Exclude<Latency, "realistic">, number> = {
     instant: 0,
@@ -30,18 +37,20 @@ export const simulateNetwork = async (endpoint: Endpoint): Promise<Response | un
     // `delay()` with no argument is MSW's realistic 100–400ms
     await (settings.latency === "realistic" ? delay() : delay(latencyMs[settings.latency]));
 
-    // Like a dropped connection: fetch rejects with a TypeError instead of getting a response
-    if (settings.errorMode === "network") return HttpResponse.error();
-
     const fails =
         settings.errorMode === "always" ||
         (settings.errorMode === "random" && Math.random() < RANDOM_FAILURE_RATE);
-    if (fails) {
-        return HttpResponse.json(
-            { message: "Simulated server error (turn it off in the header's Network panel)" },
-            { status: 500 },
-        );
-    }
+    if (!fails) return;
+
+    // Like a dropped connection: fetch rejects with a TypeError instead of getting a response
+    if (settings.errorType === "network") return HttpResponse.error();
+
+    return HttpResponse.json(
+        {
+            message: `${errorMessages[settings.errorType](endpoint)} (turn it off in the header's Network panel)`,
+        },
+        { status: settings.errorType },
+    );
 };
 
 /** Whether the header's "Empty results" setting applies to this endpoint */

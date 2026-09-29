@@ -10,12 +10,13 @@ import {
     setNetworkSettings,
     subscribeNetworkSettings,
     type ErrorMode,
+    type ErrorType,
     type Latency,
     type NetworkSettings,
     type Target,
 } from "@/mocks/networkSettings";
 
-type Option<V extends string> = { value: V; label: string; hint?: string };
+type Option<V extends string | number> = { value: V; label: string; hint?: string };
 
 const latencyOptions: Option<Latency>[] = [
     { value: "instant", label: "Instant", hint: "0ms" },
@@ -27,7 +28,13 @@ const latencyOptions: Option<Latency>[] = [
 const errorOptions: Option<ErrorMode>[] = [
     { value: "off", label: "Off" },
     { value: "random", label: "Random", hint: `${RANDOM_FAILURE_RATE * 100}% fail` },
-    { value: "always", label: "Always", hint: "500" },
+    { value: "always", label: "Always", hint: "every request" },
+];
+
+const errorTypeOptions: Option<ErrorType>[] = [
+    { value: 400, label: "400", hint: "bad request" },
+    { value: 404, label: "404", hint: "not found" },
+    { value: 500, label: "500", hint: "server" },
     { value: "network", label: "Network", hint: "no response" },
 ];
 
@@ -38,7 +45,7 @@ const targetOptions: Option<Target>[] = [
 ];
 
 /** A row of radio buttons styled as a segmented control; native radios keep arrow-key navigation */
-const Segmented = <V extends string>({
+const Segmented = <V extends string | number>({
     legend,
     name,
     options,
@@ -191,6 +198,15 @@ export const NetworkControls = () => {
                         value={settings.errorMode}
                         onChange={(errorMode) => update({ errorMode })}
                     />
+                    {settings.errorMode !== "off" && (
+                        <Segmented
+                            legend="Error type"
+                            name={`${idPrefix}-error-type`}
+                            options={errorTypeOptions}
+                            value={settings.errorType}
+                            onChange={(errorType) => update({ errorType })}
+                        />
+                    )}
 
                     <label className="flex cursor-pointer items-center justify-between gap-3">
                         <span>

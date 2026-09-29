@@ -7,13 +7,17 @@
  */
 
 export type Latency = "instant" | "realistic" | "slow" | "very-slow";
-export type ErrorMode = "off" | "random" | "always" | "network";
+/** How often requests fail */
+export type ErrorMode = "off" | "random" | "always";
+/** How a failing request fails: an HTTP status with a `{ message }` body, or no response at all */
+export type ErrorType = 400 | 404 | 500 | "network";
 export type Endpoint = "classes" | "attendees";
 export type Target = "all" | Endpoint;
 
 export type NetworkSettings = {
     latency: Latency;
     errorMode: ErrorMode;
+    errorType: ErrorType;
     /** Return an empty list (total 0) instead of real data */
     empty: boolean;
     /** Which endpoints the latency, error and empty settings apply to */
@@ -23,6 +27,7 @@ export type NetworkSettings = {
 export const defaultNetworkSettings: NetworkSettings = {
     latency: "realistic",
     errorMode: "off",
+    errorType: 500,
     empty: false,
     target: "all",
 };
@@ -35,7 +40,14 @@ const STORAGE_KEY = "mock-network-settings";
 const load = (): NetworkSettings => {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
-        return saved ? { ...defaultNetworkSettings, ...JSON.parse(saved) } : defaultNetworkSettings;
+        if (!saved) return defaultNetworkSettings;
+        const parsed = { ...defaultNetworkSettings, ...JSON.parse(saved) };
+        // Older saves had "network" as an error mode; it's an error type now
+        if (parsed.errorMode === "network") {
+            parsed.errorMode = "always";
+            parsed.errorType = "network";
+        }
+        return parsed;
     } catch {
         // Storage can be unavailable (private mode, blocked site data); fall back to defaults
         return defaultNetworkSettings;
@@ -69,7 +81,10 @@ export const subscribeNetworkSettings = (listener: () => void) => {
 
 export const isDefaultNetworkSettings = (value: NetworkSettings) =>
     (Object.keys(defaultNetworkSettings) as (keyof NetworkSettings)[]).every(
-        (key) => value[key] === defaultNetworkSettings[key],
+        (key) =>
+            // The error type has no effect (and is hidden) while errors are off
+            (key === "errorType" && value.errorMode === "off") ||
+            value[key] === defaultNetworkSettings[key],
     );
 
 /** Whether the settings apply to this endpoint */
