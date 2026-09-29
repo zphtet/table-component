@@ -22,7 +22,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 150,
         dataKey: "name",
-        // pinned: "left",
+        pinned: "left",
         cellClassName: "font-medium",
     },
 
@@ -32,7 +32,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 140,
         dataKey: "instructor",
-        // pinned: "right",
+        pinned: "right",
     },
 
     {
@@ -41,7 +41,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 130,
         dataKey: "room",
-        // pinned: "right",
+        pinned: "right",
     },
 
     {
