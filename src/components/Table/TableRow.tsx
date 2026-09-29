@@ -1,6 +1,15 @@
 import type { TableRowProps } from "@/types/table.types";
 import { LuChevronRight } from "react-icons/lu";
-import { alignClass, cn, focusRing, pinClass, pinnedBg, renderCell } from "./utils";
+import {
+    alignClass,
+    cn,
+    EXPAND_COLUMN_ID,
+    focusRing,
+    pinClass,
+    pinnedBg,
+    renderCell,
+    SELECT_COLUMN_ID,
+} from "./utils";
 import { useState } from "react";
 
 export const TableRow = <T extends object, K extends keyof T>({
@@ -24,6 +33,13 @@ export const TableRow = <T extends object, K extends keyof T>({
         setHasOpened(true);
     };
 
+    // Pinned cells need a solid background that follows the row's hover / expanded color
+    const pinnedCellBg = show ? pinnedBg.tint : cn(pinnedBg.body, pinnedBg.hoverTint);
+    const selectPin = pins.get(SELECT_COLUMN_ID);
+    const expandPin = pins.get(EXPAND_COLUMN_ID);
+    // The expand panel spans every column, the built-in ones included
+    const columnCount = columns.length + (isEnableSelect ? 1 : 0) + (hasExpand ? 1 : 0);
+
     return (
         <>
             <tr
@@ -35,7 +51,14 @@ export const TableRow = <T extends object, K extends keyof T>({
                 )}
             >
                 {isEnableSelect && (
-                    <td className="px-0 text-center align-middle">
+                    <td
+                        style={selectPin?.style}
+                        className={cn(
+                            "px-0 text-center align-middle",
+                            pinClass(selectPin),
+                            selectPin && pinnedCellBg,
+                        )}
+                    >
                         <input
                             // onChange, not onClick: React expects it on a controlled (`checked`) input
                             onChange={() => onSelectCallback?.(getRowId(row))}
@@ -43,6 +66,36 @@ export const TableRow = <T extends object, K extends keyof T>({
                             aria-label="Select row"
                             checked={isChecked}
                         />
+                    </td>
+                )}
+
+                {hasExpand && (
+                    <td
+                        style={expandPin?.style}
+                        className={cn(
+                            "px-0 text-center align-middle",
+                            pinClass(expandPin),
+                            expandPin && pinnedCellBg,
+                        )}
+                    >
+                        <button
+                            type="button"
+                            aria-expanded={show}
+                            aria-label={show ? "Collapse row" : "Expand row"}
+                            onClick={toggle}
+                            className={cn(
+                                "inline-flex size-6 cursor-pointer items-center justify-center rounded-md align-middle text-gray-400 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200",
+                                focusRing,
+                            )}
+                        >
+                            <LuChevronRight
+                                aria-hidden
+                                className={cn(
+                                    "size-4 transition-transform duration-200",
+                                    show && "rotate-90",
+                                )}
+                            />
+                        </button>
                     </td>
                 )}
 
@@ -56,8 +109,7 @@ export const TableRow = <T extends object, K extends keyof T>({
                             className={cn(
                                 "px-4 py-3 align-middle text-gray-700 dark:text-gray-300",
                                 pinClass(pin),
-                                pin &&
-                                    (show ? pinnedBg.tint : cn(pinnedBg.body, pinnedBg.hoverTint)),
+                                pin && pinnedCellBg,
                                 colIndex === 0 && "text-gray-900 dark:text-gray-100",
                                 // `*:truncate` also truncates direct child elements a custom `cell` renders
                                 col.wrap ? "break-words" : "truncate *:truncate",
@@ -65,38 +117,14 @@ export const TableRow = <T extends object, K extends keyof T>({
                                 col.cellClassName,
                             )}
                         >
-                            {hasExpand && colIndex === 0 ? (
-                                <div className="flex items-center gap-1.5">
-                                    <button
-                                        type="button"
-                                        aria-expanded={show}
-                                        aria-label={show ? "Collapse row" : "Expand row"}
-                                        onClick={toggle}
-                                        className={cn(
-                                            "-ml-1.5 inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-gray-400 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200",
-                                            focusRing,
-                                        )}
-                                    >
-                                        <LuChevronRight
-                                            aria-hidden
-                                            className={cn(
-                                                "size-4 transition-transform duration-200",
-                                                show && "rotate-90",
-                                            )}
-                                        />
-                                    </button>
-                                    <div className="min-w-0 truncate">{content}</div>
-                                </div>
-                            ) : (
-                                content
-                            )}
+                            {content}
                         </td>
                     );
                 })}
             </tr>
             {hasExpand && (
                 <tr aria-hidden={!show}>
-                    <td colSpan={columns.length} className="p-0">
+                    <td colSpan={columnCount} className="p-0">
                         {/* Animating grid rows 0fr → 1fr lets the panel grow to its content's height */}
                         <div
                             className={cn(

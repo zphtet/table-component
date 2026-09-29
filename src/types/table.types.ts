@@ -36,6 +36,9 @@ export type PinInfo = {
 /** Pin info per column id; unpinned columns aren't in the map */
 export type Pins = Map<string, PinInfo>;
 
+/** A built-in column the table puts before the data columns: the row checkbox or the expand chevron */
+export type LeadingColumn = { id: string; width: number };
+
 export type ColumnDef<T> = {
     [K in keyof T]-?: BaseColumn & {
         dataKey: K;
@@ -116,6 +119,7 @@ export type TableHeaderCellProps<T> = {
 
 export type TableSkeletonProps<T> = {
     columns: ColumnDef<T>[];
+    leadingColumns: LeadingColumn[];
     pins: Pins;
     /** How many placeholder rows to show. Match the page size so the table doesn't jump when data arrives. */
     rows?: number;

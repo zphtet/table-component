@@ -1,24 +1,36 @@
-import type { BasePagination, ColumnDef, TableProps } from "@/types/table.types";
+import type { BasePagination, ColumnDef, LeadingColumn, TableProps } from "@/types/table.types";
 import { LuCircleAlert, LuInbox } from "react-icons/lu";
 import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
 import { useTable } from "./hooks/useTable";
-import { cn, getPinInfo, orderColumns, toCss } from "./utils";
+import {
+    cn,
+    EXPAND_COLUMN_ID,
+    EXPAND_COLUMN_WIDTH,
+    getPinInfo,
+    orderColumns,
+    pinClass,
+    pinnedBg,
+    SELECT_COLUMN_ID,
+    SELECT_COLUMN_WIDTH,
+    toCss,
+} from "./utils";
 import { TableSkeleton } from "./TableSkeleton";
 import { useMemo } from "react";
 
 /** Sum of fixed widths + flexible columns' minWidths, so the table scrolls instead of squashing columns. */
-const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
-    const parts = columns
-        .map((col) =>
+const getTableMinWidth = <T,>(columns: ColumnDef<T>[], leadingColumns: LeadingColumn[]) => {
+    const parts = [
+        ...leadingColumns.map((col) => toCss(col.width)),
+        ...columns.map((col) =>
             col.width != null
                 ? toCss(col.width)
                 : col.minWidth != null
                   ? toCss(col.minWidth)
                   : null,
-        )
-        .filter((part): part is string => part != null);
+        ),
+    ].filter((part): part is string => part != null);
     return parts.length ? `calc(${parts.join(" + ")})` : undefined;
 };
 
@@ -44,8 +56,24 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         getRowId,
     } = props;
 
+    const isEnableSelect = Boolean(selectionProps);
+    const hasExpand = expandKey != null && renderExpandUI != null;
+
     const orderedColumns = useMemo(() => orderColumns(columns), [columns]);
-    const pins = useMemo(() => getPinInfo(orderedColumns), [orderedColumns]);
+    // Built-in narrow columns before the data: checkbox, then expand chevron
+    const leadingColumns = useMemo<LeadingColumn[]>(
+        () => [
+            ...(isEnableSelect ? [{ id: SELECT_COLUMN_ID, width: SELECT_COLUMN_WIDTH }] : []),
+            ...(hasExpand ? [{ id: EXPAND_COLUMN_ID, width: EXPAND_COLUMN_WIDTH }] : []),
+        ],
+        [isEnableSelect, hasExpand],
+    );
+    const pins = useMemo(
+        () => getPinInfo(orderedColumns, leadingColumns),
+        [orderedColumns, leadingColumns],
+    );
+    const selectPin = pins.get(SELECT_COLUMN_ID);
+    const expandPin = pins.get(EXPAND_COLUMN_ID);
     const {
         rows,
         pagination: paginationState,
@@ -78,9 +106,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         getRowId,
     });
 
-    const isEnableSelect = Boolean(selectionProps);
-    // The checkbox column counts too, so full-width rows (error, empty) span it
-    const columnCount = orderedColumns.length + (isEnableSelect ? 1 : 0);
+    // The built-in columns count too, so full-width rows (error, empty) span them
+    const columnCount = orderedColumns.length + leadingColumns.length;
 
     console.log("selected idx", selection);
 
@@ -98,11 +125,13 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     aria-label={ariaLabel}
                     className="w-full table-fixed border-collapse text-sm"
                     style={{
-                        minWidth: getTableMinWidth(orderedColumns),
+                        minWidth: getTableMinWidth(orderedColumns, leadingColumns),
                     }}
                 >
                     <colgroup>
-                        {isEnableSelect && <col width={45} key={"page-checkbox"} />}
+                        {leadingColumns.map((col) => (
+                            <col key={col.id} style={{ width: col.width }} />
+                        ))}
                         {orderedColumns.map((col) => (
                             <col
                                 key={col.id}
@@ -115,7 +144,15 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     <thead className={cn(stickyHeader && "sticky top-0 z-10")}>
                         <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
                             {isEnableSelect && (
-                                <th scope="col" className="px-0 text-center align-middle">
+                                <th
+                                    scope="col"
+                                    style={selectPin?.style}
+                                    className={cn(
+                                        "px-0 text-center align-middle",
+                                        pinClass(selectPin),
+                                        selectPin && pinnedBg.header,
+                                    )}
+                                >
                                     <input
                                         type="checkbox"
                                         aria-label="Select all rows on this page"
@@ -126,6 +163,19 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                         onChange={toggleAll}
                                         disabled={isLoading || isError || rows.length === 0}
                                     />
+                                </th>
+                            )}
+                            {hasExpand && (
+                                <th
+                                    scope="col"
+                                    style={expandPin?.style}
+                                    className={cn(
+                                        pinClass(expandPin),
+                                        expandPin && pinnedBg.header,
+                                    )}
+                                >
+                                    {/* No visible label, but screen readers still get a column name */}
+                                    <span className="sr-only">Expand</span>
                                 </th>
                             )}
                             {orderedColumns.map((col) => (
@@ -144,6 +194,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         {isLoading && (
                             <TableSkeleton
                                 columns={orderedColumns}
+                                leadingColumns={leadingColumns}
                                 pins={pins}
                                 rows={skeletonRows}
                             />

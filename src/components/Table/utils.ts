@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ColumnDef, PinInfo, Pins, Sort } from "@/types/table.types";
+import type { ColumnDef, LeadingColumn, PinInfo, Pins, Sort } from "@/types/table.types";
 
 const formatValue = (value: unknown): ReactNode => {
     if (value == null) return "—";
@@ -70,13 +70,27 @@ export const orderColumns = <T>(columns: ColumnDef<T>[]) => [
     ...columns.filter((col) => col.pinned === "right"),
 ];
 
+// Built-in columns before the data columns. The ids can't clash with a data column's id.
+export const SELECT_COLUMN_ID = "__select";
+export const SELECT_COLUMN_WIDTH = 44;
+export const EXPAND_COLUMN_ID = "__expand";
+export const EXPAND_COLUMN_WIDTH = 40;
+
 /** Offset per pinned column = widths of the pinned columns between it and its edge */
-export const getPinInfo = <T>(columns: ColumnDef<T>[]) => {
+export const getPinInfo = <T>(columns: ColumnDef<T>[], leadingColumns: LeadingColumn[] = []) => {
     const info: Pins = new Map();
     const left = columns.filter((col) => col.pinned === "left");
     const right = columns.filter((col) => col.pinned === "right").reverse();
 
     let offset = 0;
+    // With left-pinned data columns, the built-in columns before them stick too; otherwise the
+    // checkbox and chevron would scroll away underneath the pinned columns
+    if (left.length) {
+        leadingColumns.forEach((col) => {
+            info.set(col.id, { style: { left: offset }, side: "left", isEdge: false });
+            offset += col.width;
+        });
+    }
     left.forEach((col, i) => {
         info.set(col.id, { style: { left: offset }, side: "left", isEdge: i === left.length - 1 });
         offset += col.width as number;
