@@ -3,8 +3,9 @@ import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./index.css";
-import App from "./App.tsx";
+import { RouterProvider } from "react-router/dom";
 import { queryClient } from "./lib/queryClient";
+import { router } from "./router";
 
 // Start MSW in development only; it's never included in the production build
 async function enableMocking() {
@@ -18,7 +19,7 @@ enableMocking().then(() => {
     createRoot(document.getElementById("root")!).render(
         <StrictMode>
             <QueryClientProvider client={queryClient}>
-                <App />
+                <RouterProvider router={router} />
                 {/* Floating devtools panel; only rendered in development, removed from production builds */}
                 <ReactQueryDevtools initialIsOpen={false} />
             </QueryClientProvider>
