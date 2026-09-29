@@ -55,8 +55,8 @@ export default function Header() {
                 ))}
             </nav>
             <div className="ml-auto flex items-center gap-1">
-                {/* Mock API controls; the mocks only run in development */}
-                {import.meta.env.DEV && <NetworkControls />}
+                {/* Mock API controls */}
+                <NetworkControls />
                 <button
                     type="button"
                     onClick={() => setTheme(isDark ? "light" : "dark")}

@@ -7,12 +7,16 @@ import { RouterProvider } from "react-router/dom";
 import { queryClient } from "./lib/queryClient";
 import { router } from "./router";
 
-// Start MSW in development only; it's never included in the production build
+// There's no real backend: MSW serves the API in every build, so a deployed build works as a demo.
+// Loaded lazily, so the mocks (and faker) live in their own chunk.
 async function enableMocking() {
-    if (!import.meta.env.DEV) return;
     const { worker } = await import("./mocks/browser");
-    // "bypass": let requests without a mock handler go to the network silently
-    await worker.start({ onUnhandledFrame: "bypass" });
+    await worker.start({
+        // "bypass": let requests without a mock handler go to the network silently
+        onUnhandledFrame: "bypass",
+        // Respect Vite's `base`, in case the app is deployed under a sub-path
+        serviceWorker: { url: `${import.meta.env.BASE_URL}mockServiceWorker.js` },
+    });
 }
 
 enableMocking().then(() => {

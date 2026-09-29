@@ -94,18 +94,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
 
                     <tbody>
                         {isLoading && <TableSkeleton columns={columns} rows={skeletonRows} />}
-                        {rows.map((row, rowIndex) => {
-                            const rowKey = "id" in row ? String(row.id) : rowIndex;
-                            return (
-                                <TableRow
-                                    key={rowKey}
-                                    row={row}
-                                    columns={columns}
-                                    expandKey={expandKey}
-                                    renderExpandUI={renderExpandUI}
-                                />
-                            );
-                        })}
+                        {/* Above the rows: a failed refetch keeps the previous data, and the error must still be seen */}
                         {!isLoading && isError && (
                             <tr>
                                 <td colSpan={columns.length} className="h-32 px-3 py-6">
@@ -137,6 +126,18 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                 </td>
                             </tr>
                         )}
+                        {rows.map((row, rowIndex) => {
+                            const rowKey = "id" in row ? String(row.id) : rowIndex;
+                            return (
+                                <TableRow
+                                    key={rowKey}
+                                    row={row}
+                                    columns={columns}
+                                    expandKey={expandKey}
+                                    renderExpandUI={renderExpandUI}
+                                />
+                            );
+                        })}
                         {!isLoading && !isError && rows.length === 0 && (
                             <>
                                 {renderEmpty?.() || (

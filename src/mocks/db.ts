@@ -8,8 +8,8 @@ import type {
 } from "@/types/data.types";
 
 /**
- * Generated data behind the mock API. Only the MSW handlers import this file, so faker never
- * reaches the production bundle.
+ * Generated data behind the mock API. Only the MSW handlers import this file, so faker stays in the
+ * lazily loaded mocks chunk.
  *
  * A fixed seed and a fixed "now" give the same data on every reload, so sorting and pagination
  * results are repeatable. Handy fixtures:

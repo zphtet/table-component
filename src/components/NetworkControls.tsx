@@ -93,7 +93,7 @@ const Segmented = <V extends string | number>({
 );
 
 /**
- * Header button + panel for simulating network conditions in the mock API (dev only).
+ * Header button + panel for simulating network conditions in the mock API.
  * Every change refetches active queries, so its effect shows right away.
  */
 export const NetworkControls = () => {
@@ -168,7 +168,7 @@ export const NetworkControls = () => {
                                 Mock network
                             </h2>
                             <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Dev only. Changes refetch the current data.
+                                Simulated API. Changes refetch the current data.
                             </p>
                         </div>
                         <button
