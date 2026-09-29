@@ -28,6 +28,9 @@ export const Demo = () => {
                     sorts: [],
                     isMultiple: false,
                 }}
+                // sticky header and maxHeight
+                stickyHeader={true}
+                maxHeight="400px"
                 // expansion
                 expandKey="attendees"
                 renderExpandUI={(value) => {

@@ -48,6 +48,11 @@ export type TableProps<T, K extends keyof T> = {
     renderError?: (error: Error | null | undefined, retry?: () => void) => ReactNode;
     renderEmpty?: () => ReactNode;
     skeletonRows?: number;
+
+    // stickyHeader
+
+    stickyHeader?: boolean;
+    maxHeight?: number | string;
 };
 
 export type BasePagination = {

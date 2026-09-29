@@ -4,7 +4,7 @@ import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
 import { useTable } from "./hooks/useTable";
-import { toCss } from "./utils";
+import { cn, toCss } from "./utils";
 import { TableSkeleton } from "./TableSkeleton";
 
 /** Sum of fixed widths + flexible columns' minWidths, so the table scrolls instead of squashing columns. */
@@ -37,6 +37,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         renderError,
         skeletonRows,
         renderEmpty,
+        stickyHeader,
+        maxHeight,
     } = props;
 
     const {
@@ -63,12 +65,19 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
     console.log("render Empty", renderEmpty);
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
-            <div className="w-full overflow-x-auto">
+            <div
+                className={cn("w-full overflow-x-auto", maxHeight != null && "overflow-y-auto")}
+                style={{
+                    maxHeight: maxHeight != null ? toCss(maxHeight) : undefined,
+                }}
+            >
                 <table
                     aria-busy={isLoading}
                     aria-label={ariaLabel}
                     className="w-full table-fixed border-collapse text-sm"
-                    style={{ minWidth: getTableMinWidth(columns) }}
+                    style={{
+                        minWidth: getTableMinWidth(columns),
+                    }}
                 >
                     <colgroup>
                         {columns.map((col) => (
@@ -79,8 +88,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         ))}
                     </colgroup>
 
-                    <thead>
-                        <tr className="border-b border-gray-200 bg-gray-50/80 dark:border-gray-800 dark:bg-gray-900/50">
+                    <thead className={cn(stickyHeader && "sticky inset-0")}>
+                        <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
                             {columns.map((col) => (
                                 <TableHeaderCell
                                     onClickSort={onClickSort}
@@ -94,7 +103,6 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
 
                     <tbody>
                         {isLoading && <TableSkeleton columns={columns} rows={skeletonRows} />}
-                        {/* Above the rows: a failed refetch keeps the previous data, and the error must still be seen */}
                         {!isLoading && isError && (
                             <tr>
                                 <td colSpan={columns.length} className="h-32 px-3 py-6">
@@ -126,18 +134,20 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                 </td>
                             </tr>
                         )}
-                        {rows.map((row, rowIndex) => {
-                            const rowKey = "id" in row ? String(row.id) : rowIndex;
-                            return (
-                                <TableRow
-                                    key={rowKey}
-                                    row={row}
-                                    columns={columns}
-                                    expandKey={expandKey}
-                                    renderExpandUI={renderExpandUI}
-                                />
-                            );
-                        })}
+                        {/* A failed refetch keeps the previous data in the query, so hide it: the error replaces the rows */}
+                        {!isError &&
+                            rows.map((row, rowIndex) => {
+                                const rowKey = "id" in row ? String(row.id) : rowIndex;
+                                return (
+                                    <TableRow
+                                        key={rowKey}
+                                        row={row}
+                                        columns={columns}
+                                        expandKey={expandKey}
+                                        renderExpandUI={renderExpandUI}
+                                    />
+                                );
+                            })}
                         {!isLoading && !isError && rows.length === 0 && (
                             <>
                                 {renderEmpty?.() || (
