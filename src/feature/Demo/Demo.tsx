@@ -1,10 +1,14 @@
+import { useState } from "react";
 import Table from "@/components/Table/Table";
 import { columns } from "./columns";
 import { attendeeColumns } from "./attendee/columns";
 import { fitnessClassesData } from "@/mocks/data";
 import type { Attendee } from "@/types/data.types";
+import type { SelectedId } from "@/types/table.types";
 
 export const Demo = () => {
+    const [selectedIds, setSelectedIds] = useState<SelectedId[]>([]);
+
     return (
         <div className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6">
             <div>
@@ -39,6 +43,12 @@ export const Demo = () => {
                         <Table columns={attendeeColumns} data={(value.value as Attendee[]) || []} />
                     );
                 }}
+
+                selection={{
+                    selectedIds,
+                    onChangeSelect: setSelectedIds,
+                }}
+                getRowId={(row) => row.id}
             />
         </div>
     );

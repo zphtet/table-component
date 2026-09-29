@@ -73,6 +73,11 @@ export type TableProps<T, K extends keyof T> = {
 
     stickyHeader?: boolean;
     maxHeight?: number | string;
+
+    // selections
+    selection?: SelectionProps;
+    /** The id selection stores for a row, e.g. `(row) => row.id` */
+    getRowId?: (row: T) => SelectedId;
 };
 
 export type BasePagination = {
@@ -123,6 +128,10 @@ export type TableRowProps<T, K extends keyof T> = {
     renderExpansion?: () => void;
     expandKey?: keyof T;
     renderExpandUI?: (props: { value: T[K] }) => ReactNode;
+    isEnableSelect?: boolean;
+    onSelectCallback?: (id: SelectedId) => void;
+    getRowId: (row: T) => SelectedId;
+    isChecked?: boolean;
 };
 
 // sorting types
@@ -140,10 +149,21 @@ export type SortingProps = {
 
 export type UseSortingOptions = SortingProps;
 
+export type SelectedId = string | number;
+export type SelectionProps = {
+    selectedIds: SelectedId[];
+    onChangeSelect?: (value: SelectedId[]) => void;
+};
+
+export type UseSelectionOptions = Partial<SelectionProps> & {
+    /** Ids of the rows on the current page; select all / deselect all act on these */
+    pageIds: SelectedId[];
+};
 export type UseTableOptions<T> = UsePaginationOptions &
     UseSortingOptions & {
         columns: ColumnDef<T>[];
         manualPagination?: boolean;
         manualSorting?: boolean;
         data: T[];
-    };
+        getRowId?: (row: T) => SelectedId;
+    } & Partial<SelectionProps>;

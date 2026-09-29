@@ -4,7 +4,7 @@ import { columns } from "../Demo/columns";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { FitnessClass } from "@/types/data.types";
-import type { BasePagination, Sort } from "@/types/table.types";
+import type { BasePagination, SelectedId, Sort } from "@/types/table.types";
 import { useState } from "react";
 import { Attendee } from "./Attendee";
 /** `[{ columnId: "name", direction: "asc" }, …]` → `"name:asc,…"`, the API's `sort` format */
@@ -15,6 +15,7 @@ export const ServerSideDemo = () => {
     // page and size are ours; total comes from the server response
     const [pagination, setPagination] = useState({ page: 1, size: 10 });
     const [sorts, setSorts] = useState<Sort[]>([]);
+    const [selectedIds, setSelectedIds] = useState<[] | SelectedId[]>([]);
 
     const { data, isLoading, refetch, isError, error } = useQuery({
         // A new page, size or sort is a new query, so it gets fetched (and cached) separately.
@@ -74,6 +75,17 @@ export const ServerSideDemo = () => {
                 renderExpandUI={(value) => {
                     return <Attendee id={(value.value as string) || ""} />;
                 }}
+
+                // row selecti
+
+                selection={{
+                    selectedIds: selectedIds,
+                    onChangeSelect: (ids: SelectedId[]) => {
+                        setSelectedIds(ids);
+                    },
+                }}
+
+                getRowId={(row) => row.id}
             />
         </div>
     );

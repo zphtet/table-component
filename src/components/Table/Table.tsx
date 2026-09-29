@@ -40,6 +40,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         renderEmpty,
         stickyHeader,
         maxHeight,
+        selection: selectionProps,
+        getRowId,
     } = props;
 
     const orderedColumns = useMemo(() => orderColumns(columns), [columns]);
@@ -51,6 +53,12 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         setSize,
         sorting,
         onClickSort,
+        selection,
+        toggleCheck,
+        isAlreadyChecked,
+        toggleAll,
+        isAllSelected,
+        isSomeSelected,
     } = useTable({
         columns: orderedColumns,
         data,
@@ -63,9 +71,19 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         onChangeSort: sortingProps?.onChangeSort,
         isMultiple: sortingProps?.isMultiple,
         manualSorting: sortingProps?.manual,
+
+        // selection
+        selectedIds: selectionProps?.selectedIds,
+        onChangeSelect: selectionProps?.onChangeSelect,
+        getRowId,
     });
 
-    console.log("pinns", pins);
+    const isEnableSelect = Boolean(selectionProps);
+    // The checkbox column counts too, so full-width rows (error, empty) span it
+    const columnCount = orderedColumns.length + (isEnableSelect ? 1 : 0);
+
+    console.log("selected idx", selection);
+
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div
@@ -74,6 +92,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     maxHeight: maxHeight != null ? toCss(maxHeight) : undefined,
                 }}
             >
+                {/* create export btn that */}
                 <table
                     aria-busy={isLoading}
                     aria-label={ariaLabel}
@@ -83,6 +102,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     }}
                 >
                     <colgroup>
+                        {isEnableSelect && <col width={45} key={"page-checkbox"} />}
                         {orderedColumns.map((col) => (
                             <col
                                 key={col.id}
@@ -94,6 +114,20 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     {/* z-10: above pinned body cells (z-[1]) scrolling underneath */}
                     <thead className={cn(stickyHeader && "sticky top-0 z-10")}>
                         <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
+                            {isEnableSelect && (
+                                <th scope="col" className="px-0 text-center align-middle">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Select all rows on this page"
+                                        checked={isAllSelected}
+                                        ref={(el) => {
+                                            if (el) el.indeterminate = isSomeSelected;
+                                        }}
+                                        onChange={toggleAll}
+                                        disabled={isLoading || isError || rows.length === 0}
+                                    />
+                                </th>
+                            )}
                             {orderedColumns.map((col) => (
                                 <TableHeaderCell
                                     onClickSort={onClickSort}
@@ -116,7 +150,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         )}
                         {!isLoading && isError && (
                             <tr>
-                                <td colSpan={orderedColumns.length} className="h-32 px-3 py-6">
+                                <td colSpan={columnCount} className="h-32 px-3 py-6">
                                     {renderError ? (
                                         renderError(error, onRetry)
                                     ) : (
@@ -146,28 +180,34 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                             </tr>
                         )}
                         {/* A failed refetch keeps the previous data in the query, so hide it: the error replaces the rows */}
-                        {!isError &&
-                            rows.map((row, rowIndex) => {
-                                const rowKey = "id" in row ? String(row.id) : rowIndex;
-                                return (
-                                    <TableRow
-                                        key={rowKey}
-                                        row={row}
-                                        columns={orderedColumns}
-                                        pins={pins}
-                                        expandKey={expandKey}
-                                        renderExpandUI={renderExpandUI}
-                                    />
-                                );
-                            })}
+                        {!isError && (
+                            <>
+                                {rows.map((row, rowIndex) => {
+                                    const rowKey = "id" in row ? String(row.id) : rowIndex;
+                                    return (
+                                        <TableRow
+                                            key={rowKey}
+                                            row={row}
+                                            isEnableSelect={isEnableSelect}
+                                            isChecked={
+                                                getRowId ? isAlreadyChecked(getRowId(row)) : false
+                                            }
+                                            columns={orderedColumns}
+                                            pins={pins}
+                                            expandKey={expandKey}
+                                            renderExpandUI={renderExpandUI}
+                                            onSelectCallback={toggleCheck}
+                                            getRowId={getRowId!}
+                                        />
+                                    );
+                                })}
+                            </>
+                        )}
                         {!isLoading && !isError && rows.length === 0 && (
                             <>
                                 {renderEmpty?.() || (
                                     <tr>
-                                        <td
-                                            colSpan={orderedColumns.length}
-                                            className="h-32 px-3 py-6"
-                                        >
+                                        <td colSpan={columnCount} className="h-32 px-3 py-6">
                                             <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
                                                 <LuInbox
                                                     aria-hidden

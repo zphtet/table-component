@@ -2,6 +2,7 @@ import type { UseTableOptions } from "@/types/table.types";
 import { sortRows } from "../utils";
 import { usePagination } from "./usePagination";
 import { useSorting } from "./useSorting";
+import { useSelection } from "./useSelection";
 
 export const useTable = <T extends object>(props: UseTableOptions<T>) => {
     const {
@@ -14,6 +15,9 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
         sorts,
         onChangeSort,
         isMultiple,
+        selectedIds,
+        onChangeSelect,
+        getRowId,
     } = props;
 
     const {
@@ -35,6 +39,10 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
     // Server-side paging: `data` is already the current page, so slicing it again would empty page 2+
     const rows = manualPagination ? sortedRows : sortedRows.slice(start, start + size);
 
+    // After `rows`: select all / deselect all act on the rows of the current page
+    const pageIds = getRowId ? rows.map(getRowId) : [];
+    const selection = useSelection({ selectedIds, onChangeSelect, pageIds });
+    console.log("page ids", pageIds);
     return {
         rows,
         pagination: paginationState,
@@ -42,5 +50,6 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
         setSize,
         sorting,
         onClickSort,
+        ...selection,
     };
 };

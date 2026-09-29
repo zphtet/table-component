@@ -9,6 +9,10 @@ export const TableRow = <T extends object, K extends keyof T>({
     pins,
     expandKey,
     renderExpandUI,
+    onSelectCallback,
+    isEnableSelect,
+    getRowId,
+    isChecked,
 }: TableRowProps<T, K>) => {
     const [show, setShow] = useState(false);
     // Render the panel on first open, then keep it mounted so closing can animate
@@ -30,6 +34,18 @@ export const TableRow = <T extends object, K extends keyof T>({
                     show && "bg-gray-50/80 dark:bg-gray-900/40",
                 )}
             >
+                {isEnableSelect && (
+                    <td className="px-0 text-center align-middle">
+                        <input
+                            // onChange, not onClick: React expects it on a controlled (`checked`) input
+                            onChange={() => onSelectCallback?.(getRowId(row))}
+                            type="checkbox"
+                            aria-label="Select row"
+                            checked={isChecked}
+                        />
+                    </td>
+                )}
+
                 {columns.map((col, colIndex) => {
                     const content = renderCell(col, row);
                     const pin = pins.get(col.id);
