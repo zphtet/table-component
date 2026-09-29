@@ -1,11 +1,12 @@
 import type { TableRowProps } from "@/types/table.types";
 import { LuChevronRight } from "react-icons/lu";
-import { alignClass, cn, focusRing, renderCell } from "./utils";
+import { alignClass, cn, focusRing, pinClass, pinnedBg, renderCell } from "./utils";
 import { useState } from "react";
 
 export const TableRow = <T extends object, K extends keyof T>({
     row,
     columns,
+    pins,
     expandKey,
     renderExpandUI,
 }: TableRowProps<T, K>) => {
@@ -24,17 +25,23 @@ export const TableRow = <T extends object, K extends keyof T>({
             <tr
                 className={cn(
                     // Borders sit on top of each row, so the expand panel and the last row need no special casing
-                    "border-t border-gray-100 transition-colors first:border-t-0 hover:bg-gray-50/80 dark:border-gray-800/70 dark:hover:bg-gray-900/40",
+                    // group/row: pinned cells repeat the row's hover color on their solid background
+                    "group/row border-t border-gray-100 transition-colors first:border-t-0 hover:bg-gray-50/80 dark:border-gray-800/70 dark:hover:bg-gray-900/40",
                     show && "bg-gray-50/80 dark:bg-gray-900/40",
                 )}
             >
                 {columns.map((col, colIndex) => {
                     const content = renderCell(col, row);
+                    const pin = pins.get(col.id);
                     return (
                         <td
                             key={col.id}
+                            style={pin?.style}
                             className={cn(
                                 "px-4 py-3 align-middle text-gray-700 dark:text-gray-300",
+                                pinClass(pin),
+                                pin &&
+                                    (show ? pinnedBg.tint : cn(pinnedBg.body, pinnedBg.hoverTint)),
                                 colIndex === 0 && "text-gray-900 dark:text-gray-100",
                                 // `*:truncate` also truncates direct child elements a custom `cell` renders
                                 col.wrap ? "break-words" : "truncate *:truncate",

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { ColumnDef, Sort } from "@/types/table.types";
+import type { ColumnDef, PinInfo, Pins, Sort } from "@/types/table.types";
 
 const formatValue = (value: unknown): ReactNode => {
     if (value == null) return "—";
@@ -62,3 +62,59 @@ export const sortRows = <T extends object>(rows: T[], sorts: Sort[], columns: Co
 /** Keyboard focus ring. Inset, so it isn't clipped inside truncating (overflow-hidden) cells. */
 export const focusRing =
     "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500";
+
+/** Left-pinned first, right-pinned last; order within each group is kept */
+export const orderColumns = <T>(columns: ColumnDef<T>[]) => [
+    ...columns.filter((col) => col.pinned === "left"),
+    ...columns.filter((col) => !col.pinned),
+    ...columns.filter((col) => col.pinned === "right"),
+];
+
+/** Offset per pinned column = widths of the pinned columns between it and its edge */
+export const getPinInfo = <T>(columns: ColumnDef<T>[]) => {
+    const info: Pins = new Map();
+    const left = columns.filter((col) => col.pinned === "left");
+    const right = columns.filter((col) => col.pinned === "right").reverse();
+
+    let offset = 0;
+    left.forEach((col, i) => {
+        info.set(col.id, { style: { left: offset }, side: "left", isEdge: i === left.length - 1 });
+        offset += col.width as number;
+    });
+    offset = 0;
+    right.forEach((col, i) => {
+        info.set(col.id, {
+            style: { right: offset },
+            side: "right",
+            isEdge: i === right.length - 1,
+        });
+        offset += col.width as number;
+    });
+    return info;
+};
+
+/** Sticky + a divider line on the edge that faces the scrolling columns */
+export const pinClass = (pin: PinInfo | undefined) =>
+    pin &&
+    cn(
+        "sticky z-[1]",
+        pin.isEdge &&
+            pin.side === "left" &&
+            "shadow-[inset_-1px_0_0_var(--color-gray-200)] dark:shadow-[inset_-1px_0_0_var(--color-gray-800)]",
+        pin.isEdge &&
+            pin.side === "right" &&
+            "shadow-[inset_1px_0_0_var(--color-gray-200)] dark:shadow-[inset_1px_0_0_var(--color-gray-800)]",
+    );
+
+/**
+ * Solid backgrounds for pinned cells, so scrolled columns don't show through. They match the
+ * translucent row colors as they look over the table's own background.
+ */
+export const pinnedBg = {
+    header: "bg-gray-50 dark:bg-gray-900",
+    body: "bg-white dark:bg-gray-950",
+    // Row hover / expanded: gray-50/80 over white, gray-900/40 over gray-950
+    tint: "bg-gray-50 dark:bg-[color-mix(in_oklab,var(--color-gray-900)_40%,var(--color-gray-950))]",
+    hoverTint:
+        "group-hover/row:bg-gray-50 dark:group-hover/row:bg-[color-mix(in_oklab,var(--color-gray-900)_40%,var(--color-gray-950))]",
+} as const;

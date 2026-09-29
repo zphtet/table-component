@@ -1,6 +1,6 @@
 import type { Sort, TableHeaderCellProps } from "@/types/table.types";
 import { LuArrowDown, LuArrowUp, LuChevronsUpDown } from "react-icons/lu";
-import { alignClass, cn, focusRing } from "./utils";
+import { alignClass, cn, focusRing, pinClass, pinnedBg } from "./utils";
 
 const ariaSort = { asc: "ascending", desc: "descending" } as const;
 
@@ -18,6 +18,7 @@ const SortIcon = ({ direction }: { direction: Sort["direction"] | undefined }) =
 
 export const TableHeaderCell = <T extends object>({
     column,
+    pin,
     onClickSort,
     sorts,
 }: TableHeaderCellProps<T>) => {
@@ -33,9 +34,12 @@ export const TableHeaderCell = <T extends object>({
                         : "none"
                     : undefined
             }
+            style={pin?.style}
             className={cn(
                 "h-10 truncate px-4 align-middle text-xs font-medium text-gray-500 dark:text-gray-400",
                 alignClass[column.align ?? "left"],
+                pinClass(pin),
+                pin && pinnedBg.header,
                 column.headerClassName,
             )}
         >

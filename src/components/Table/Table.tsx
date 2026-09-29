@@ -4,8 +4,9 @@ import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
 import { TableRow } from "./TableRow";
 import { useTable } from "./hooks/useTable";
-import { cn, toCss } from "./utils";
+import { cn, getPinInfo, orderColumns, toCss } from "./utils";
 import { TableSkeleton } from "./TableSkeleton";
+import { useMemo } from "react";
 
 /** Sum of fixed widths + flexible columns' minWidths, so the table scrolls instead of squashing columns. */
 const getTableMinWidth = <T,>(columns: ColumnDef<T>[]) => {
@@ -41,6 +42,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         maxHeight,
     } = props;
 
+    const orderedColumns = useMemo(() => orderColumns(columns), [columns]);
+    const pins = useMemo(() => getPinInfo(orderedColumns), [orderedColumns]);
     const {
         rows,
         pagination: paginationState,
@@ -49,7 +52,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         sorting,
         onClickSort,
     } = useTable({
-        columns,
+        columns: orderedColumns,
         data,
         // pagination
         pagination: pagination?.pagination as BasePagination,
@@ -62,7 +65,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         manualSorting: sortingProps?.manual,
     });
 
-    console.log("render Empty", renderEmpty);
+    console.log("pinns", pins);
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div
@@ -76,11 +79,11 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     aria-label={ariaLabel}
                     className="w-full table-fixed border-collapse text-sm"
                     style={{
-                        minWidth: getTableMinWidth(columns),
+                        minWidth: getTableMinWidth(orderedColumns),
                     }}
                 >
                     <colgroup>
-                        {columns.map((col) => (
+                        {orderedColumns.map((col) => (
                             <col
                                 key={col.id}
                                 style={{ width: col.width != null ? toCss(col.width) : undefined }}
@@ -88,24 +91,32 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         ))}
                     </colgroup>
 
-                    <thead className={cn(stickyHeader && "sticky inset-0")}>
+                    {/* z-10: above pinned body cells (z-[1]) scrolling underneath */}
+                    <thead className={cn(stickyHeader && "sticky top-0 z-10")}>
                         <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
-                            {columns.map((col) => (
+                            {orderedColumns.map((col) => (
                                 <TableHeaderCell
                                     onClickSort={onClickSort}
                                     key={col.id}
                                     sorts={sorting}
                                     column={col}
+                                    pin={pins.get(col.id)}
                                 />
                             ))}
                         </tr>
                     </thead>
 
                     <tbody>
-                        {isLoading && <TableSkeleton columns={columns} rows={skeletonRows} />}
+                        {isLoading && (
+                            <TableSkeleton
+                                columns={orderedColumns}
+                                pins={pins}
+                                rows={skeletonRows}
+                            />
+                        )}
                         {!isLoading && isError && (
                             <tr>
-                                <td colSpan={columns.length} className="h-32 px-3 py-6">
+                                <td colSpan={orderedColumns.length} className="h-32 px-3 py-6">
                                     {renderError ? (
                                         renderError(error, onRetry)
                                     ) : (
@@ -142,7 +153,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                     <TableRow
                                         key={rowKey}
                                         row={row}
-                                        columns={columns}
+                                        columns={orderedColumns}
+                                        pins={pins}
                                         expandKey={expandKey}
                                         renderExpandUI={renderExpandUI}
                                     />
@@ -152,7 +164,10 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                             <>
                                 {renderEmpty?.() || (
                                     <tr>
-                                        <td colSpan={columns.length} className="h-32 px-3 py-6">
+                                        <td
+                                            colSpan={orderedColumns.length}
+                                            className="h-32 px-3 py-6"
+                                        >
                                             <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
                                                 <LuInbox
                                                     aria-hidden

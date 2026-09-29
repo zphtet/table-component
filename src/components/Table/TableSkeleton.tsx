@@ -1,5 +1,5 @@
 import type { TableSkeletonProps } from "@/types/table.types";
-import { cn } from "./utils";
+import { cn, pinClass, pinnedBg } from "./utils";
 
 // Varied bar widths so the placeholder reads like real text instead of a grid of identical blocks
 const barWidths = ["w-3/4", "w-1/2", "w-2/3", "w-5/6", "w-2/5"];
@@ -8,7 +8,11 @@ const barWidths = ["w-3/4", "w-1/2", "w-2/3", "w-5/6", "w-2/5"];
 const barAlign = { left: "", center: "mx-auto", right: "ml-auto" } as const;
 
 /** Placeholder rows shown while data loads. Render inside the table's `<tbody>`. */
-export const TableSkeleton = <T extends object>({ columns, rows = 5 }: TableSkeletonProps<T>) => {
+export const TableSkeleton = <T extends object>({
+    columns,
+    pins,
+    rows = 5,
+}: TableSkeletonProps<T>) => {
     return (
         <>
             {Array.from({ length: rows }, (_, rowIndex) => (
@@ -17,17 +21,28 @@ export const TableSkeleton = <T extends object>({ columns, rows = 5 }: TableSkel
                     aria-hidden
                     className="border-t border-gray-100 first:border-t-0 dark:border-gray-800/70"
                 >
-                    {columns.map((col, colIndex) => (
-                        <td key={col.id} className="px-4 py-3 align-middle">
-                            <div
+                    {columns.map((col, colIndex) => {
+                        const pin = pins.get(col.id);
+                        return (
+                            <td
+                                key={col.id}
+                                style={pin?.style}
                                 className={cn(
-                                    "h-4 animate-pulse rounded bg-gray-200 motion-reduce:animate-none dark:bg-gray-800",
-                                    barWidths[(rowIndex + colIndex) % barWidths.length],
-                                    barAlign[col.align ?? "left"],
+                                    "px-4 py-3 align-middle",
+                                    pinClass(pin),
+                                    pin && pinnedBg.body,
                                 )}
-                            />
-                        </td>
-                    ))}
+                            >
+                                <div
+                                    className={cn(
+                                        "h-4 animate-pulse rounded bg-gray-200 motion-reduce:animate-none dark:bg-gray-800",
+                                        barWidths[(rowIndex + colIndex) % barWidths.length],
+                                        barAlign[col.align ?? "left"],
+                                    )}
+                                />
+                            </td>
+                        );
+                    })}
                 </tr>
             ))}
         </>
