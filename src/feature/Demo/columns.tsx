@@ -50,10 +50,8 @@ export const columns: ColumnDef<FitnessClass>[] = [
         dataKey: "time",
         cell: ({ value }) => (
             <div>
-                {/* <div>{formatDate(new Date(value))}</div> */}
-                <div>{JSON.stringify(value)}</div>
-                {/* <div className="text-xs text-gray-500">{formatTime(value)}</div> */}
-                <div className="text-xs text-gray-500">{JSON.stringify(value)}</div>
+                <div>{formatDate(new Date(value))}</div>
+                <div className="text-xs text-gray-500">{formatTime(new Date(value))}</div>
             </div>
         ),
     },
