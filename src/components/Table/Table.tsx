@@ -41,7 +41,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         data,
         pagination,
         sorting: sortingProps,
-        expandKey,
+        // expandKey,
         renderExpandUI,
         isLoading,
         isError,
@@ -57,7 +57,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
     } = props;
 
     const isEnableSelect = Boolean(selectionProps);
-    const hasExpand = expandKey != null && renderExpandUI != null;
+    const hasExpand = Boolean(renderExpandUI)
 
     const orderedColumns = useMemo(() => orderColumns(columns), [columns]);
     // Built-in narrow columns before the data: checkbox, then expand chevron
@@ -81,7 +81,6 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         setSize,
         sorting,
         onClickSort,
-        selection,
         toggleCheck,
         isAlreadyChecked,
         toggleAll,
@@ -246,7 +245,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                             }
                                             columns={orderedColumns}
                                             pins={pins}
-                                            expandKey={expandKey}
+                                            // expandKey={expandKey}
                                             renderExpandUI={renderExpandUI}
                                             onSelectCallback={toggleCheck}
                                             getRowId={getRowId!}

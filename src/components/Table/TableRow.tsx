@@ -16,7 +16,6 @@ export const TableRow = <T extends object, K extends keyof T>({
     row,
     columns,
     pins,
-    expandKey,
     renderExpandUI,
     onSelectCallback,
     isEnableSelect,
@@ -26,7 +25,7 @@ export const TableRow = <T extends object, K extends keyof T>({
     const [show, setShow] = useState(false);
     // Render the panel on first open, then keep it mounted so closing can animate
     const [hasOpened, setHasOpened] = useState(false);
-    const hasExpand = expandKey != null && renderExpandUI != null;
+    const hasExpand = Boolean(renderExpandUI);
 
     const toggle = () => {
         setShow((prev) => !prev);
@@ -139,7 +138,7 @@ export const TableRow = <T extends object, K extends keyof T>({
                                         show ? "opacity-100" : "opacity-0",
                                     )}
                                 >
-                                    {hasOpened && renderExpandUI({ value: row[expandKey] as T[K] })}
+                                    {hasOpened && renderExpandUI?.({ row })}
                                 </div>
                             </div>
                         </div>

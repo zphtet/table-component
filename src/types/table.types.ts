@@ -57,8 +57,8 @@ export type TableProps<T, K extends keyof T> = {
     sorting?: SortingProps;
 
     // expansion
-    expandKey?: keyof T;
-    renderExpandUI?: (props: { value: T[K] }) => ReactNode;
+    // expandKey?: keyof T;
+    renderExpandUI?: (props: { row: T }) => ReactNode;
 
     // for server side fetching props
 
@@ -130,8 +130,8 @@ export type TableRowProps<T, K extends keyof T> = {
     columns: ColumnDef<T>[];
     pins: Pins;
     renderExpansion?: () => void;
-    expandKey?: keyof T;
-    renderExpandUI?: (props: { value: T[K] }) => ReactNode;
+    // expandKey?: keyof T;
+    renderExpandUI?: (props: { row: T }) => ReactNode;
     isEnableSelect?: boolean;
     onSelectCallback?: (id: SelectedId) => void;
     getRowId: (row: T) => SelectedId;

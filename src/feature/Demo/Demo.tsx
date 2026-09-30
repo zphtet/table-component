@@ -36,11 +36,11 @@ export const Demo = () => {
                 stickyHeader={true}
                 maxHeight="400px"
                 // expansion
-                expandKey="attendees"
-                renderExpandUI={(value) => {
+                // expandKey="attendees"
+                renderExpandUI={({ row }) => {
                     // return <div> {JSON.stringify(value)}</div>;
                     return (
-                        <Table columns={attendeeColumns} data={(value.value as Attendee[]) || []} />
+                        <Table ariaLabel="Attendee tabble" columns={attendeeColumns} data={(row.attendees as Attendee[]) || []} />
                     );
                 }}
 

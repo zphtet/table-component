@@ -45,7 +45,7 @@ export const ServerSideDemo = () => {
             </div>
 
             <Table
-                key={"serverside-classes"}
+                ariaLabel="Server Side Classes Table"
                 data={data?.data || []}
                 columns={columns}
                 isError={isError}
@@ -71,9 +71,8 @@ export const ServerSideDemo = () => {
                     manual: true,
                 }}
 
-                expandKey="id"
-                renderExpandUI={(value) => {
-                    return <Attendee id={(value.value as string) || ""} />;
+                renderExpandUI={({ row }) => {
+                    return <Attendee id={row.id || ""} />;
                 }}
 
                 // row selecti
