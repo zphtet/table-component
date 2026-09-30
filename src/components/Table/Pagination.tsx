@@ -75,6 +75,7 @@ export const Pagination = ({
                     type="button"
                     className={`${buttonClass} ${idleClass}`}
                     disabled={page <= 1}
+                    aria-disabled={page <= 1}
                     onClick={() => goTo(page - 1)}
                 >
                     <LuChevronLeft aria-hidden className="size-4" />
@@ -104,6 +105,7 @@ export const Pagination = ({
                     type="button"
                     className={`${buttonClass} ${idleClass}`}
                     disabled={page >= pageCount}
+                    aria-disabled={page >= pageCount}
                     onClick={() => goTo(page + 1)}
                 >
                     Next

@@ -50,7 +50,7 @@ export type ColumnDef<T> = {
 export type TableProps<T, K extends keyof T> = {
     columns: ColumnDef<T>[];
     data: T[];
-    ariaLabel?: string;
+    ariaLabel: string;
     /** Renders the pagination bar under the table and pages through `data` (see `manual` for server-side paging). */
     pagination?: PaginationProps;
     // sorting

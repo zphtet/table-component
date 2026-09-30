@@ -27,8 +27,8 @@ const getTableMinWidth = <T,>(columns: ColumnDef<T>[], leadingColumns: LeadingCo
             col.width != null
                 ? toCss(col.width)
                 : col.minWidth != null
-                  ? toCss(col.minWidth)
-                  : null,
+                    ? toCss(col.minWidth)
+                    : null,
         ),
     ].filter((part): part is string => part != null);
     return parts.length ? `calc(${parts.join(" + ")})` : undefined;
@@ -109,11 +109,12 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
     // The built-in columns count too, so full-width rows (error, empty) span them
     const columnCount = orderedColumns.length + leadingColumns.length;
 
-    console.log("selected idx", selection);
 
     return (
         <div className="w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-950">
             <div
+                role="region"
+                tabIndex={0}
                 className={cn("w-full overflow-x-auto", maxHeight != null && "overflow-y-auto")}
                 style={{
                     maxHeight: maxHeight != null ? toCss(maxHeight) : undefined,

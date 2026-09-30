@@ -63,7 +63,7 @@ export const TableRow = <T extends object, K extends keyof T>({
                             // onChange, not onClick: React expects it on a controlled (`checked`) input
                             onChange={() => onSelectCallback?.(getRowId(row))}
                             type="checkbox"
-                            aria-label="Select row"
+                            aria-label={`Select ${getRowId(row)}`}
                             checked={isChecked}
                         />
                     </td>
@@ -81,7 +81,7 @@ export const TableRow = <T extends object, K extends keyof T>({
                         <button
                             type="button"
                             aria-expanded={show}
-                            aria-label={show ? "Collapse row" : "Expand row"}
+                            aria-label={show ? `Collapse ${getRowId(row)}` : `Expand ${getRowId(row)}`}
                             onClick={toggle}
                             className={cn(
                                 "inline-flex size-6 cursor-pointer items-center justify-center rounded-md align-middle text-gray-400 transition-colors hover:bg-gray-200/70 hover:text-gray-700 dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-200",

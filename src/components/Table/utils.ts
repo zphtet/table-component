@@ -61,7 +61,7 @@ export const sortRows = <T extends object>(rows: T[], sorts: Sort[], columns: Co
 
 /** Keyboard focus ring. Inset, so it isn't clipped inside truncating (overflow-hidden) cells. */
 export const focusRing =
-    "outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500";
+    "outline-hidden focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-gray-400 dark:focus-visible:ring-gray-500";
 
 /** Left-pinned first, right-pinned last; order within each group is kept */
 export const orderColumns = <T>(columns: ColumnDef<T>[]) => [
