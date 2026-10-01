@@ -42,7 +42,7 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
     // After `rows`: select all / deselect all act on the rows of the current page
     const pageIds = getRowId ? rows.map(getRowId) : [];
     const selection = useSelection({ selectedIds, onChangeSelect, pageIds });
-    console.log("page ids", pageIds);
+
     return {
         rows,
         pagination: paginationState,
