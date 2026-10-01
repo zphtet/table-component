@@ -1,6 +1,13 @@
-import type { Sort, TableHeaderCellProps } from "@/types/table.types";
+import type { ColumnDef, Sort } from "./types";
 import { LuArrowDown, LuArrowUp, LuChevronsUpDown } from "react-icons/lu";
-import { alignClass, cn, focusRing, pinClass, pinnedBg } from "./utils";
+import { alignClass, cn, focusRing, pinClass, pinnedBg, type PinInfo } from "./utils";
+
+type TableHeaderCellProps<T> = {
+    column: ColumnDef<T>;
+    pin?: PinInfo;
+    toggleSortFn: (id: string) => void;
+    sorts: Sort[];
+};
 
 const ariaSort = { asc: "ascending", desc: "descending" } as const;
 
@@ -19,7 +26,7 @@ const SortIcon = ({ direction }: { direction: Sort["direction"] | undefined }) =
 export const TableHeaderCell = <T extends object>({
     column,
     pin,
-    onClickSort,
+    toggleSortFn,
     sorts,
 }: TableHeaderCellProps<T>) => {
     const currentDirection = sorts.find((item) => item.columnId === column.id)?.direction;
@@ -28,7 +35,7 @@ export const TableHeaderCell = <T extends object>({
         <th
             scope="col"
             aria-sort={
-                column.sortable
+                column.isSortable
                     ? currentDirection
                         ? ariaSort[currentDirection]
                         : "none"
@@ -43,10 +50,10 @@ export const TableHeaderCell = <T extends object>({
                 column.headerClassName,
             )}
         >
-            {column.sortable ? (
+            {column.isSortable ? (
                 <button
                     type="button"
-                    onClick={() => onClickSort?.(column.id)}
+                    onClick={() => toggleSortFn?.(column.id)}
                     className={cn(
                         "group -mx-1 inline-flex max-w-[calc(100%+0.5rem)] cursor-pointer items-center gap-1 rounded px-1 py-0.5 transition-colors hover:text-gray-900 dark:hover:text-gray-100",
                         // Right-aligned columns put the icon on the left so the labels line up with the numbers

@@ -1,5 +1,5 @@
 import type { EcommerceStore, StoreStatus } from "@/types/data.types";
-import type { ColumnDef } from "@/types/table.types";
+import type { ColumnDef } from "@/components/Table";
 
 // The API sends dates as JSON strings, so wrap them in `new Date()` before formatting
 const formatDate = (date: Date) =>
@@ -20,7 +20,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "name",
         header: "Store",
-        sortable: true,
+        isSortable: true,
         width: 150,
         dataKey: "name",
         pinned: "left",
@@ -30,7 +30,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "owner",
         header: "Owner",
-        sortable: true,
+        isSortable: true,
         width: 160,
         dataKey: "owner",
     },
@@ -38,7 +38,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "location",
         header: "Location",
-        sortable: true,
+        isSortable: true,
         width: 140,
         dataKey: "location",
     },
@@ -46,7 +46,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "category",
         header: "Category",
-        sortable: true,
+        isSortable: true,
         width: 140,
         dataKey: "category",
     },
@@ -54,7 +54,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "productCount",
         header: "Products",
-        sortable: true,
+        isSortable: true,
         // align: "right",
         width: 110,
         dataKey: "productCount",
@@ -64,7 +64,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "totalStockValue",
         header: "Stock value",
-        sortable: true,
+        isSortable: true,
         // align: "right",
         width: 150,
         dataKey: "totalStockValue",
@@ -75,7 +75,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "createdAt",
         header: "Created",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "createdAt",
         cell: ({ value }) => formatDate(new Date(value)),
@@ -84,7 +84,7 @@ export const storeColumns: ColumnDef<EcommerceStore>[] = [
     {
         id: "status",
         header: "Status",
-        sortable: true,
+        isSortable: true,
         width: 110,
         dataKey: "status",
         cell: ({ value }) => (

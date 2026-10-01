@@ -1,11 +1,10 @@
 import { useMemo, useState } from "react";
-import Table from "@/components/Table/Table";
+import { Table, type SelectedId } from "@/components/Table";
 import { focusRing } from "@/components/Table/utils";
 import { columns } from "./columns";
 import { attendeeColumns } from "./attendee/columns";
 import { fitnessClassesData } from "@/mocks/data";
 import { generateFitnessClasses, getAttendees } from "@/mocks/largeData";
-import type { SelectedId } from "@/types/table.types";
 
 // 20 = the hand-written classes; the rest are generated, for stress-testing
 const DATASET_SIZES = [20, 1_000, 10_000, 50_000, 100_000];
@@ -69,20 +68,20 @@ export const Demo = () => {
                 data={data}
                 // pagination
                 pagination={{
-                    pagination: { page: 1, size: 10, total: data.length },
+                    value: { page: 1, size: 10, total: data.length },
                     pageSizeOptions: [3, 5, 10, 20, 100],
                 }}
                 // sorting
                 sorting={{
-                    sorts: [],
-                    isMultiple: false,
+                    value: [],
+                    isMultiSort: false,
                 }}
                 // sticky header and maxHeight
-                // stickyHeader={true}
+                // isHeaderSticky={true}
                 // maxHeight="400px"
                 // expansion
                 // expandKey="attendees"
-                renderExpandUI={({ row }) => {
+                renderExpandedFn={({ row }) => {
                     // return <div> {JSON.stringify(value)}</div>;
                     return (
                         <Table
@@ -90,15 +89,16 @@ export const Demo = () => {
                             columns={attendeeColumns}
                             // Generated classes build their attendees on first expand
                             data={row.attendees ?? getAttendees(row)}
+                            getRowIdFn={row => row.id}
                         />
                     );
                 }}
                 // selectio
                 selection={{
-                    selectedIds,
-                    onChangeSelect: setSelectedIds,
+                    value: selectedIds,
+                    changeFn: setSelectedIds,
                 }}
-                getRowId={(row) => row.id}
+                getRowIdFn={(row) => row.id}
             />
         </div>
     );

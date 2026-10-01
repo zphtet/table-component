@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import Table from "@/components/Table/Table";
+import { DEFAULT_PAGINATION, Table, type Sort } from "@/components/Table";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { Attendee as AttendeeRow } from "@/types/data.types";
-import type { Sort } from "@/types/table.types";
 import { attendeeColumns } from "../Demo/attendee/columns";
-import { DEFAULT_PAGINATION } from "@/lib/constant";
 
 /** `[{ columnId: "name", direction: "asc" }, …]` → `"name:asc,…"`, the API's `sort` format */
 const toSortParam = (sorts: Sort[]) =>
@@ -58,23 +56,23 @@ export const Attendee = ({ id }: AttendeeProps) => {
             isLoading={isLoading}
             isError={isError}
             error={error}
-            onRetry={refetch}
-            skeletonRows={pagination.size}
+            retryFn={refetch}
             pagination={{
-                pagination: { ...pagination, total: data?.pagination.total ?? 0 },
-                onChangeHandler: setPagination,
+                value: { ...pagination, total: data?.pagination.total ?? 0 },
+                changeFn: setPagination,
                 pageSizeOptions: [5, 10, 25],
-                manual: true,
+                isManual: true,
             }}
             sorting={{
-                sorts,
-                onChangeSort: (next: Sort[]) => {
+                value: sorts,
+                changeFn: (next: Sort[]) => {
                     setSorts(next);
                     // A new order makes the current page meaningless, so start from page 1
                     setPagination((prev) => ({ ...prev, page: 1 }));
                 },
-                manual: true,
+                isManual: true,
             }}
+            getRowIdFn={row => row.id}
         />
     );
 };

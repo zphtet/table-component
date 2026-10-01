@@ -1,6 +1,13 @@
-import type { PaginationComponentProps } from "@/types/table.types";
+import type { BasePagination } from "./types";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import { focusRing } from "./utils";
+
+type PaginationComponentProps = {
+    pagination: BasePagination;
+    sizeChangeFn: (size: number) => void;
+    pageChangeFn: (page: number) => void;
+    pageSizeOptions?: number[];
+};
 
 type PageItem = number | "ellipsis";
 
@@ -28,8 +35,8 @@ const activeClass =
 
 export const Pagination = ({
     pagination,
-    onPageChange,
-    onSizeChange,
+    pageChangeFn,
+    sizeChangeFn,
     pageSizeOptions = [10, 20, 50],
 }: PaginationComponentProps) => {
     const { page, size, total } = pagination;
@@ -37,7 +44,7 @@ export const Pagination = ({
     const start = total === 0 ? 0 : (page - 1) * size + 1;
     const end = Math.min(page * size, total);
 
-    const goTo = (next: number) => onPageChange?.(Math.min(Math.max(next, 1), pageCount));
+    const goTo = (next: number) => pageChangeFn(Math.min(Math.max(next, 1), pageCount));
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 text-sm text-gray-500 dark:border-gray-800 dark:text-gray-400">
@@ -50,24 +57,22 @@ export const Pagination = ({
                     of <span className="font-medium text-gray-900 dark:text-gray-100">{total}</span>
                 </p>
 
-                {onSizeChange && (
-                    <label className="flex items-center gap-2">
-                        Rows per page
-                        <select
-                            value={size}
-                            onChange={(e) => {
-                                onSizeChange(Number(e.target.value));
-                            }}
-                            className={`h-8 cursor-pointer rounded-md border border-gray-200 bg-white px-2 text-gray-900 shadow-xs dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 ${focusRing}`}
-                        >
-                            {pageSizeOptions.map((size) => (
-                                <option key={size} value={size}>
-                                    {size}
-                                </option>
-                            ))}
-                        </select>
-                    </label>
-                )}
+                <label className="flex items-center gap-2">
+                    Rows per page
+                    <select
+                        value={size}
+                        onChange={(e) => {
+                            sizeChangeFn(Number(e.target.value));
+                        }}
+                        className={`h-8 cursor-pointer rounded-md border border-gray-200 bg-white px-2 text-gray-900 shadow-xs dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 ${focusRing}`}
+                    >
+                        {pageSizeOptions.map((size) => (
+                            <option key={size} value={size}>
+                                {size}
+                            </option>
+                        ))}
+                    </select>
+                </label>
             </div>
 
             <nav aria-label="Pagination" className="flex items-center gap-1">

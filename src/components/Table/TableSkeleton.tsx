@@ -1,5 +1,13 @@
-import type { TableSkeletonProps } from "@/types/table.types";
-import { cn, pinClass, pinnedBg } from "./utils";
+import type { ColumnDef } from "./types";
+import { cn, pinClass, pinnedBg, type LeadingColumn, type Pins } from "./utils";
+
+type TableSkeletonProps<T> = {
+    columns: ColumnDef<T>[];
+    leadingColumns: LeadingColumn[];
+    pins: Pins;
+    /** How many placeholder rows to show. Match the page size so the table doesn't jump when data arrives. */
+    rows?: number;
+};
 
 // Varied bar widths so the placeholder reads like real text instead of a grid of identical blocks
 const barWidths = ["w-3/4", "w-1/2", "w-2/3", "w-5/6", "w-2/5"];

@@ -1,5 +1,5 @@
 import type { Attendee, BookingStatus } from "@/types/data.types";
-import type { ColumnDef } from "@/types/table.types";
+import type { ColumnDef } from "@/components/Table";
 
 const formatDate = (date: Date) =>
     date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
@@ -21,7 +21,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
     {
         id: "name",
         header: "Name",
-        sortable: true,
+        isSortable: true,
         width: 180,
         dataKey: "name",
         cellClassName: "font-medium",
@@ -30,7 +30,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
     {
         id: "email",
         header: "Email",
-        sortable: true,
+        isSortable: true,
         minWidth: 200,
         dataKey: "email",
         cell: ({ value }) => (
@@ -47,7 +47,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
     {
         id: "paymentType",
         header: "Payment",
-        sortable: true,
+        isSortable: true,
         width: 120,
         dataKey: "paymentType",
     },
@@ -55,7 +55,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
     {
         id: "bookingStatus",
         header: "Status",
-        sortable: true,
+        isSortable: true,
         width: 120,
         dataKey: "bookingStatus",
         cell: ({ value }) => (
@@ -70,7 +70,7 @@ export const attendeeColumns: ColumnDef<Attendee>[] = [
     {
         id: "bookedAt",
         header: "Booked at",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "bookedAt",
         cell: ({ value }) => (

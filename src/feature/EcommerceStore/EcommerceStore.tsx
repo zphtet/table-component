@@ -1,13 +1,17 @@
-import Table from "@/components/Table/Table";
+import {
+    DEFAULT_PAGINATION,
+    Table,
+    type BasePagination,
+    type SelectedId,
+    type Sort,
+} from "@/components/Table";
 import { storeColumns } from "./columns";
 import { useQuery } from "@tanstack/react-query";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { EcommerceStore } from "@/types/data.types";
 import { useState } from "react";
-import type { BasePagination, SelectedId, Sort } from "@/types/table.types";
 import { StockTable } from "./stock/Stock";
-import { DEFAULT_PAGINATION } from "@/lib/constant";
 const toSortParam = (sorts: Sort[]) =>
     sorts.map(({ columnId, direction }) => `${columnId}:${direction}`).join(",");
 export const EcommerceStoreDemo = () => {
@@ -41,34 +45,33 @@ export const EcommerceStoreDemo = () => {
             </div>
             <Table
                 isLoading={isLoading}
-                onRetry={refetch}
+                retryFn={refetch}
                 isError={isError}
                 error={error}
                 ariaLabel="Ecommerce Stores"
                 columns={storeColumns}
                 data={data?.data || []}
-                skeletonRows={pagination?.size || 10}
                 pagination={{
-                    pagination: { ...pagination, ...data?.pagination },
-                    onChangeHandler: setPagination,
+                    value: { ...pagination, ...data?.pagination },
+                    changeFn: setPagination,
                     pageSizeOptions: [5, 10, 20, 50],
-                    manual: true
+                    isManual: true
                 }}
 
                 sorting={{
-                    sorts: sorts,
-                    onChangeSort: setSorts,
-                    manual: true,
+                    value: sorts,
+                    changeFn: setSorts,
+                    isManual: true,
                 }}
 
-                renderExpandUI={({ row }) => {
+                renderExpandedFn={({ row }) => {
                     return <StockTable id={row.id} />
                 }}
-                getRowId={(row) => row.id}
+                getRowIdFn={(row) => row.id}
 
                 selection={{
-                    selectedIds: selectedIds,
-                    onChangeSelect: setSelectedIds
+                    value: selectedIds,
+                    changeFn: setSelectedIds
                 }}
             />
         </div>

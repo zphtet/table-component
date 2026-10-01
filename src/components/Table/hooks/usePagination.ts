@@ -1,11 +1,13 @@
-import type { UsePaginationOptions } from "@/types/table.types";
+import type { PaginationProps } from "../types";
+import { DEFAULT_PAGINATION } from "../utils";
 import { useControllableState } from "./useControllableState";
-import { DEFAULT_PAGINATION } from "@/lib/constant";
+
+type UsePaginationOptions = Omit<PaginationProps, "pageSizeOptions" | "isManual">;
+
 export const usePagination = (props: UsePaginationOptions) => {
-    const { pagination } = props;
     const [value, setValue] = useControllableState(
-        { ...DEFAULT_PAGINATION, ...pagination },
-        props?.onChangeHandler,
+        { ...DEFAULT_PAGINATION, ...props.value },
+        props.changeFn,
     );
     const setPage = (pageNum: number) => {
         setValue({ ...value, page: pageNum });

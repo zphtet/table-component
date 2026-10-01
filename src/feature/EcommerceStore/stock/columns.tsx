@@ -1,5 +1,5 @@
 import type { Stock, StockStatus } from "@/types/data.types";
-import type { ColumnDef } from "@/types/table.types";
+import type { ColumnDef } from "@/components/Table";
 
 // The API sends dates as JSON strings, so wrap them in `new Date()` before formatting
 const formatDate = (date: Date) =>
@@ -26,7 +26,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "productName",
         header: "Product",
-        sortable: true,
+        isSortable: true,
         minWidth: 200,
         dataKey: "productName",
         cellClassName: "font-medium",
@@ -35,7 +35,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "sku",
         header: "SKU",
-        sortable: true,
+        isSortable: true,
         width: 120,
         dataKey: "sku",
         cellClassName: "font-mono text-xs",
@@ -44,7 +44,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "category",
         header: "Category",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "category",
     },
@@ -52,7 +52,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "price",
         header: "Price",
-        sortable: true,
+        isSortable: true,
         align: "right",
         width: 110,
         dataKey: "price",
@@ -63,7 +63,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "quantity",
         header: "Qty",
-        sortable: true,
+        isSortable: true,
         align: "right",
         width: 90,
         dataKey: "quantity",
@@ -73,7 +73,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "status",
         header: "Status",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "status",
         cell: ({ value }) => (
@@ -88,7 +88,7 @@ export const stockColumns: ColumnDef<Stock>[] = [
     {
         id: "updatedAt",
         header: "Updated",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "updatedAt",
         cell: ({ value }) => (

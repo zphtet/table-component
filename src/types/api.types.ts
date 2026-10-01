@@ -1,4 +1,4 @@
-import type { BasePagination } from "./table.types";
+import type { BasePagination } from "@/components/Table";
 
 /**
  * Shape of every paginated list endpoint.

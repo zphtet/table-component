@@ -1,5 +1,5 @@
 import type { ClassStatus, FitnessClass } from "@/types/data.types";
-import type { ColumnDef } from "@/types/table.types";
+import type { ColumnDef } from "@/components/Table";
 
 const formatDate = (date: Date) =>
     date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
@@ -19,17 +19,18 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "name",
         header: "Name",
-        sortable: true,
+        isSortable: true,
         width: 150,
         dataKey: "name",
         pinned: "left",
         cellClassName: "font-medium",
+        isWrapped: true
     },
 
     {
         id: "instructor",
         header: "Instructor",
-        sortable: true,
+        isSortable: true,
         width: 140,
         dataKey: "instructor",
     },
@@ -37,7 +38,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "room",
         header: "Room",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "room",
     },
@@ -45,7 +46,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "time",
         header: "Time",
-        sortable: true,
+        isSortable: true,
         width: 130,
         dataKey: "time",
         cell: ({ value }) => (
@@ -59,7 +60,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "capacity",
         header: "Capacity",
-        sortable: true,
+        isSortable: true,
         // align: "right",
         width: 110,
         dataKey: "capacity",
@@ -69,7 +70,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "attendeeCount",
         header: "Booked",
-        sortable: true,
+        isSortable: true,
         // align: "right",
         width: 110,
         dataKey: "attendeeCount",
@@ -80,7 +81,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
     {
         id: "status",
         header: "Status",
-        sortable: true,
+        isSortable: true,
         width: 110,
         dataKey: "status",
         cell: ({ value }) => (

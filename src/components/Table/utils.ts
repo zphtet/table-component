@@ -1,5 +1,21 @@
-import type { ReactNode } from "react";
-import type { ColumnDef, LeadingColumn, PinInfo, Pins, Sort } from "@/types/table.types";
+import type { CSSProperties, ReactNode } from "react";
+import type { BasePagination, ColumnDef, ComputedColumn, DataColumn, Sort } from "./types";
+
+/** Where a pinned column sticks; see `getPinInfo` */
+export type PinInfo = {
+    /** `left` or `right` offset */
+    style: CSSProperties;
+    side: "left" | "right";
+    /** The pinned column next to the scrolling ones, which draws the divider line */
+    isEdge: boolean;
+};
+
+export type Pins = Map<string, PinInfo>;
+
+/** A built-in column the table puts before the data columns: the row checkbox or the expand chevron */
+export type LeadingColumn = { id: string; width: number };
+
+export const DEFAULT_PAGINATION: BasePagination = { page: 1, size: 10, total: 0 };
 
 const formatValue = (value: unknown): ReactNode => {
     if (value == null) return "—";
@@ -8,7 +24,10 @@ const formatValue = (value: unknown): ReactNode => {
     return String(value);
 };
 
+const isComputedColumn = <T,>(col: ColumnDef<T>): col is ComputedColumn<T> => col.dataKey === undefined;
+
 export const renderCell = <T extends object>(col: ColumnDef<T>, row: T): ReactNode => {
+    if (isComputedColumn(col)) return col.cell({ row });
     const value = row[col.dataKey];
     if (col.cell) {
         return col.cell({ row, value });
@@ -41,7 +60,11 @@ const compareValues = (a: unknown, b: unknown) => {
 export const sortRows = <T extends object>(rows: T[], sorts: Sort[], columns: ColumnDef<T>[]) => {
     const active = sorts
         .map((sort) => ({ sort, col: columns.find((col) => col.id === sort.columnId) }))
-        .filter((item): item is { sort: Sort; col: ColumnDef<T> } => item.col != null);
+        // Computed columns have no field to compare, so client-side sorting skips them
+        .filter(
+            (item): item is { sort: Sort; col: DataColumn<T> } =>
+                item.col != null && !isComputedColumn(item.col),
+        );
     if (!active.length) return rows;
 
     return [...rows].sort((rowA, rowB) => {

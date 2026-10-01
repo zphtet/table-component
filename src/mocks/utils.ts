@@ -1,6 +1,6 @@
 import { delay, HttpResponse } from "msw";
 import type { PaginatedResponse } from "@/types/api.types";
-import type { Sort } from "@/types/table.types";
+import type { Sort } from "@/components/Table";
 import {
     affects,
     getNetworkSettings,

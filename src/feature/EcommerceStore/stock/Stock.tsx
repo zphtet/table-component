@@ -1,11 +1,10 @@
-import Table from "@/components/Table/Table"
+import { DEFAULT_PAGINATION, Table } from "@/components/Table"
 import { useQuery } from "@tanstack/react-query"
 import { stockColumns } from "./columns"
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson"
 import type { Stock } from "@/types/data.types"
 import type { PaginatedResponse } from "@/types/api.types"
 import { useState } from "react"
-import { DEFAULT_PAGINATION } from "@/lib/constant"
 
 
 
@@ -34,13 +33,14 @@ export const StockTable = ({ id }: { id: string | number }) => {
         isError={isError}
         error={error}
         isLoading={isLoading}
-        onRetry={refetch}
+        retryFn={refetch}
         pagination={{
-            pagination: { ...pagination, ...data?.pagination },
+            value: { ...pagination, ...data?.pagination },
             pageSizeOptions: [3, 5, 10],
-            onChangeHandler: setPaginaton,
-            manual: true
+            changeFn: setPaginaton,
+            isManual: true
         }}
+        getRowIdFn={row => row.id}
     />
 
 }

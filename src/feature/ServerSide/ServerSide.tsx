@@ -1,13 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import Table from "@/components/Table/Table";
+import { DEFAULT_PAGINATION, Table, type SelectedId, type Sort } from "@/components/Table";
 import { columns } from "../Demo/columns";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { FitnessClass } from "@/types/data.types";
-import type { SelectedId, Sort } from "@/types/table.types";
 import { useState } from "react";
 import { Attendee } from "./Attendee";
-import { DEFAULT_PAGINATION } from "@/lib/constant";
 /** `[{ columnId: "name", direction: "asc" }, …]` → `"name:asc,…"`, the API's `sort` format */
 const toSortParam = (sorts: Sort[]) =>
     sorts.map(({ columnId, direction }) => `${columnId}:${direction}`).join(",");
@@ -52,39 +50,38 @@ export const ServerSideDemo = () => {
                 isError={isError}
                 error={error}
                 isLoading={isLoading}
-                onRetry={refetch}
-                skeletonRows={pagination?.size}
+                retryFn={refetch}
                 pagination={{
-                    pagination: { ...pagination, total: data?.pagination.total ?? 0 },
-                    onChangeHandler: setPagination,
+                    value: { ...pagination, total: data?.pagination.total ?? 0 },
+                    changeFn: setPagination,
                     pageSizeOptions: [5, 10, 20],
-                    manual: true,
+                    isManual: true,
                 }}
 
                 sorting={{
-                    sorts: sorts,
-                    onChangeSort: (sorts: Sort[]) => {
+                    value: sorts,
+                    changeFn: (sorts: Sort[]) => {
                         setSorts(sorts);
                         // A new order makes the current page meaningless, so start from page 1
                         setPagination((prev) => ({ ...prev, page: 1 }));
                     },
-                    manual: true,
+                    isManual: true,
                 }}
 
-                renderExpandUI={({ row }) => {
+                renderExpandedFn={({ row }) => {
                     return <Attendee id={row.id || ""} />;
                 }}
 
                 // row selecti
 
                 selection={{
-                    selectedIds: selectedIds,
-                    onChangeSelect: (ids: SelectedId[]) => {
+                    value: selectedIds,
+                    changeFn: (ids: SelectedId[]) => {
                         setSelectedIds(ids);
                     },
                 }}
 
-                getRowId={(row) => row.id}
+                getRowIdFn={(row) => row.id}
             />
         </div>
     );

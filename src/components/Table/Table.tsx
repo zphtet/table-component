@@ -1,4 +1,4 @@
-import type { BasePagination, ColumnDef, LeadingColumn, TableProps } from "@/types/table.types";
+import type { ColumnDef, TableProps } from "./types";
 import { LuCircleAlert, LuInbox } from "react-icons/lu";
 import { Pagination } from "./Pagination";
 import { TableHeaderCell } from "./TableHeaderCell";
@@ -9,6 +9,7 @@ import {
     EXPAND_COLUMN_ID,
     EXPAND_COLUMN_WIDTH,
     getPinInfo,
+    type LeadingColumn,
     orderColumns,
     pinClass,
     pinnedBg,
@@ -34,39 +35,40 @@ const getTableMinWidth = <T,>(columns: ColumnDef<T>[], leadingColumns: LeadingCo
     return parts.length ? `calc(${parts.join(" + ")})` : undefined;
 };
 
-const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => {
+export const Table = <T extends object>(props: TableProps<T>) => {
     const {
         ariaLabel,
         columns,
         data,
         pagination,
-        sorting: sortingProps,
+        sorting,
+        expansion,
         // expandKey,
-        renderExpandUI,
+        renderExpandedFn,
         isLoading,
         isError,
         error,
-        onRetry,
-        renderError,
+        retryFn,
+        renderErrorFn,
         skeletonRows,
-        renderEmpty,
-        stickyHeader,
+        renderEmptyFn,
+        isHeaderSticky,
         maxHeight,
-        selection: selectionProps,
-        getRowId,
+        selection,
+        getRowIdFn,
     } = props;
 
-    const isEnableSelect = Boolean(selectionProps);
-    const hasExpand = Boolean(renderExpandUI)
+    const isSelectable = Boolean(selection);
+    const hasExpand = Boolean(renderExpandedFn)
 
     const orderedColumns = useMemo(() => orderColumns(columns), [columns]);
     // Built-in narrow columns before the data: checkbox, then expand chevron
     const leadingColumns = useMemo<LeadingColumn[]>(
         () => [
-            ...(isEnableSelect ? [{ id: SELECT_COLUMN_ID, width: SELECT_COLUMN_WIDTH }] : []),
+            ...(isSelectable ? [{ id: SELECT_COLUMN_ID, width: SELECT_COLUMN_WIDTH }] : []),
             ...(hasExpand ? [{ id: EXPAND_COLUMN_ID, width: EXPAND_COLUMN_WIDTH }] : []),
         ],
-        [isEnableSelect, hasExpand],
+        [isSelectable, hasExpand],
     );
     const pins = useMemo(
         () => getPinInfo(orderedColumns, leadingColumns),
@@ -79,30 +81,23 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
         pagination: paginationState,
         setPage,
         setSize,
-        sorting,
-        onClickSort,
-        toggleCheck,
-        isAlreadyChecked,
+        sorts,
+        toggleSort,
+        toggleSelect,
+        isSelected,
         toggleAll,
         isAllSelected,
         isSomeSelected,
+        isExpanded,
+        toggleExpand,
     } = useTable({
         columns: orderedColumns,
         data,
-        // pagination
-        pagination: pagination?.pagination as BasePagination,
-        onChangeHandler: pagination?.onChangeHandler,
-        manualPagination: pagination?.manual,
-        // sorting
-        sorts: sortingProps?.sorts ?? [],
-        onChangeSort: sortingProps?.onChangeSort,
-        isMultiple: sortingProps?.isMultiple,
-        manualSorting: sortingProps?.manual,
-
-        // selection
-        selectedIds: selectionProps?.selectedIds,
-        onChangeSelect: selectionProps?.onChangeSelect,
-        getRowId,
+        pagination,
+        sorting,
+        selection,
+        expansion,
+        getRowIdFn,
     });
 
     // The built-in columns count too, so full-width rows (error, empty) span them
@@ -144,9 +139,9 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                     </colgroup>
 
                     {/* z-10: above pinned body cells (z-[1]) scrolling underneath */}
-                    <thead className={cn(stickyHeader && "sticky top-0 z-10")}>
+                    <thead className={cn(isHeaderSticky && "sticky top-0 z-10")}>
                         <tr className="border-b border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900">
-                            {isEnableSelect && (
+                            {isSelectable && (
                                 <th
                                     scope="col"
                                     style={selectPin?.style}
@@ -183,9 +178,9 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                             )}
                             {orderedColumns.map((col) => (
                                 <TableHeaderCell
-                                    onClickSort={onClickSort}
+                                    toggleSortFn={toggleSort}
                                     key={col.id}
-                                    sorts={sorting}
+                                    sorts={sorts}
                                     column={col}
                                     pin={pins.get(col.id)}
                                 />
@@ -199,14 +194,14 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                 columns={orderedColumns}
                                 leadingColumns={leadingColumns}
                                 pins={pins}
-                                rows={skeletonRows}
+                                rows={skeletonRows ?? paginationState.size}
                             />
                         )}
                         {!isLoading && isError && (
                             <tr>
                                 <td colSpan={columnCount} className="h-32 px-3 py-6">
-                                    {renderError ? (
-                                        renderError(error, onRetry)
+                                    {renderErrorFn ? (
+                                        renderErrorFn({ error, retryFn })
                                     ) : (
                                         <div
                                             role="alert"
@@ -219,10 +214,10 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                                             <p className="text-sm text-gray-700 dark:text-gray-300">
                                                 {error?.message || "Something went wrong"}
                                             </p>
-                                            {onRetry && (
+                                            {retryFn && (
                                                 <button
                                                     type="button"
-                                                    onClick={() => onRetry()}
+                                                    onClick={() => retryFn()}
                                                     className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-900"
                                                 >
                                                     Retry
@@ -236,22 +231,22 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         {/* A failed refetch keeps the previous data in the query, so hide it: the error replaces the rows */}
                         {!isError && (
                             <>
-                                {rows.map((row, rowIndex) => {
-                                    const rowKey = "id" in row ? String(row.id) : rowIndex;
+                                {rows.map((row) => {
+                                    const rowKey = getRowIdFn(row)
                                     return (
                                         <TableRow
                                             key={rowKey}
                                             row={row}
-                                            isEnableSelect={isEnableSelect}
-                                            isChecked={
-                                                getRowId ? isAlreadyChecked(getRowId(row)) : false
-                                            }
+                                            isSelectable={isSelectable}
+                                            isSelected={isSelected(rowKey)}
                                             columns={orderedColumns}
+                                            columnCount={columnCount}
                                             pins={pins}
-                                            // expandKey={expandKey}
-                                            renderExpandUI={renderExpandUI}
-                                            onSelectCallback={toggleCheck}
-                                            getRowId={getRowId!}
+                                            renderExpandedFn={renderExpandedFn}
+                                            toggleSelectFn={toggleSelect}
+                                            isExpanded={isExpanded(rowKey)}
+                                            toggleExpandFn={toggleExpand}
+                                            getRowIdFn={getRowIdFn}
                                         />
                                     );
                                 })}
@@ -259,7 +254,7 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
                         )}
                         {!isLoading && !isError && rows.length === 0 && (
                             <>
-                                {renderEmpty?.() || (
+                                {renderEmptyFn?.() || (
                                     <tr>
                                         <td colSpan={columnCount} className="h-32 px-3 py-6">
                                             <div className="flex flex-col items-center justify-center gap-2 text-gray-500 dark:text-gray-400">
@@ -280,8 +275,8 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
             {pagination && (
                 <Pagination
                     pagination={paginationState}
-                    onPageChange={setPage}
-                    onSizeChange={setSize}
+                    pageChangeFn={setPage}
+                    sizeChangeFn={setSize}
                     pageSizeOptions={pagination?.pageSizeOptions}
                 />
             )}
@@ -289,4 +284,3 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
     );
 };
 
-export default Table;
