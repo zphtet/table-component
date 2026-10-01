@@ -7,13 +7,13 @@ import { fitnessClassesData } from "@/mocks/data";
 import { generateFitnessClasses, getAttendees } from "@/mocks/largeData";
 
 // 20 = the hand-written classes; the rest are generated, for stress-testing
-const DATASET_SIZES = [20, 1_000, 10_000, 50_000, 100_000];
+const DATASET_SIZES = [20, 100, 1_000, 10_000];
 
 export const Demo = () => {
     const [selectedIds, setSelectedIds] = useState<SelectedId[]>([]);
     const [datasetSize, setDatasetSize] = useState(DATASET_SIZES[0]);
 
-    const { data, generatedMs } = useMemo(() => {
+    const { data } = useMemo(() => {
         if (datasetSize === fitnessClassesData.length) {
             return { data: fitnessClassesData, generatedMs: null };
         }
@@ -34,11 +34,6 @@ export const Demo = () => {
                 </div>
 
                 <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
-                    {generatedMs != null && (
-                        <span className="tabular-nums">
-                            Generated in {Math.round(generatedMs)} ms
-                        </span>
-                    )}
                     <label className="flex items-center gap-2">
                         Rows
                         <select
@@ -69,7 +64,7 @@ export const Demo = () => {
                 // pagination
                 pagination={{
                     value: { page: 1, size: 10, total: data.length },
-                    pageSizeOptions: [3, 5, 10, 20, 100],
+                    pageSizeOptions: [5, 10, 20],
                 }}
                 // sorting
                 sorting={{
