@@ -4,8 +4,9 @@ import Table from "@/components/Table/Table";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { Attendee as AttendeeRow } from "@/types/data.types";
-import type { BasePagination, Sort } from "@/types/table.types";
+import type { Sort } from "@/types/table.types";
 import { attendeeColumns } from "../Demo/attendee/columns";
+import { DEFAULT_PAGINATION } from "@/lib/constant";
 
 /** `[{ columnId: "name", direction: "asc" }, …]` → `"name:asc,…"`, the API's `sort` format */
 const toSortParam = (sorts: Sort[]) =>
@@ -22,7 +23,7 @@ type AttendeeProps = {
 /** Attendees of one class, paged and sorted by the server. */
 export const Attendee = ({ id }: AttendeeProps) => {
     // page and size are ours; total comes from the server response
-    const [pagination, setPagination] = useState({ page: 1, size: 5 });
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION);
     const [sorts, setSorts] = useState<Sort[]>([]);
 
     const { data, isLoading, isError, error, refetch } = useQuery({
@@ -61,7 +62,7 @@ export const Attendee = ({ id }: AttendeeProps) => {
             skeletonRows={pagination.size}
             pagination={{
                 pagination: { ...pagination, total: data?.pagination.total ?? 0 },
-                onChangeHandler: ({ page, size }: BasePagination) => setPagination({ page, size }),
+                onChangeHandler: setPagination,
                 pageSizeOptions: [5, 10, 25],
                 manual: true,
             }}

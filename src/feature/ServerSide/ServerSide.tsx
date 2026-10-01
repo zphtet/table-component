@@ -4,16 +4,17 @@ import { columns } from "../Demo/columns";
 import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { FitnessClass } from "@/types/data.types";
-import type { BasePagination, SelectedId, Sort } from "@/types/table.types";
+import type { SelectedId, Sort } from "@/types/table.types";
 import { useState } from "react";
 import { Attendee } from "./Attendee";
+import { DEFAULT_PAGINATION } from "@/lib/constant";
 /** `[{ columnId: "name", direction: "asc" }, …]` → `"name:asc,…"`, the API's `sort` format */
 const toSortParam = (sorts: Sort[]) =>
     sorts.map(({ columnId, direction }) => `${columnId}:${direction}`).join(",");
 
 export const ServerSideDemo = () => {
     // page and size are ours; total comes from the server response
-    const [pagination, setPagination] = useState({ page: 1, size: 10 });
+    const [pagination, setPagination] = useState(DEFAULT_PAGINATION);
     const [sorts, setSorts] = useState<Sort[]>([]);
     const [selectedIds, setSelectedIds] = useState<[] | SelectedId[]>([]);
 
@@ -55,8 +56,7 @@ export const ServerSideDemo = () => {
                 skeletonRows={pagination?.size}
                 pagination={{
                     pagination: { ...pagination, total: data?.pagination.total ?? 0 },
-                    onChangeHandler: ({ page, size }: BasePagination) =>
-                        setPagination({ page, size }),
+                    onChangeHandler: setPagination,
                     pageSizeOptions: [5, 10, 20],
                     manual: true,
                 }}
