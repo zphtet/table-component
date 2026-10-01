@@ -42,6 +42,8 @@ const targetOptions: Option<Target>[] = [
     { value: "all", label: "All APIs" },
     { value: "classes", label: "Classes" },
     { value: "attendees", label: "Attendees" },
+    { value: "stores", label: "Stores" },
+    { value: "stocks", label: "Stocks" },
 ];
 
 /** A row of radio buttons styled as a segmented control; native radios keep arrow-key navigation */

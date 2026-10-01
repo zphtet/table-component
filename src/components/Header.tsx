@@ -7,6 +7,7 @@ import { cn, focusRing } from "./Table/utils";
 const navItems = [
     { to: "/client-side", label: "Client Demo" },
     { to: "/server-side", label: "Server Side Demo" },
+    { to: "/ecommerce-store", label: "Ecommerce Store" },
 ];
 
 type Theme = "light" | "dark";

@@ -22,19 +22,28 @@ export interface Attendee {
     bookedAt: Date;
 }
 
-export type MemberPlan = "Monthly" | "Annual" | "Class pack" | "Drop-in";
-export type MemberStatus = "Active" | "Paused" | "Expired";
-export interface Member {
+export type StoreStatus = "Active" | "Inactive" | "Suspended";
+export interface EcommerceStore {
     id: string;
     name: string;
-    email: string;
-    phone: string;
-    plan: MemberPlan;
-    status: MemberStatus;
-    homeStudio: string;
-    joinedAt: Date;
-    lastVisit: Date | null;
-    visits: number;
-    /** In dollars */
-    lifetimeSpend: number;
+    owner: string;
+    location: string;
+    category: string;
+    createdAt: Date;
+    productCount: number;
+    totalStockValue: number;
+    status: StoreStatus;
+    stocks?: Stock[];
+}
+
+export type StockStatus = "In Stock" | "Low Stock" | "Out of Stock" | "Discontinued";
+export interface Stock {
+    id: string;
+    sku: string;
+    productName: string;
+    category: string;
+    price: number;
+    quantity: number;
+    status: StockStatus;
+    updatedAt: Date;
 }

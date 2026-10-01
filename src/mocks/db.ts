@@ -3,8 +3,12 @@ import type {
     Attendee,
     BookingStatus,
     ClassStatus,
+    EcommerceStore,
     FitnessClass,
     PaymentType,
+    Stock,
+    StockStatus,
+    StoreStatus,
 } from "@/types/data.types";
 
 /**
@@ -17,6 +21,9 @@ import type {
  * - fc-002: a small class (a few attendees)
  * - fc-003: a class with no attendees
  * - fc-006: a full class (every spot taken)
+ * - st-001: a big store (60+ stock items), for paging through stock
+ * - st-002: a small store (a few items)
+ * - st-003: an inactive store with no stock
  */
 faker.seed(20260929);
 
@@ -179,4 +186,99 @@ for (let index = 0; index < CLASS_COUNT; index++) {
     attendeesByClassId.set(id, attendees);
 }
 
-export const db = { classes, attendeesByClassId };
+// Stores come after the classes, so adding them doesn't change the classes' random values
+const STORE_COUNT = 40;
+const LOW_STOCK_LEVEL = 10;
+
+type StoreSize = "large" | "small" | "empty";
+
+// st-001 large, st-002 small, st-003 empty; after that 1 in 10 large, 1 in 10 empty
+const storeSizeFor = (index: number): StoreSize => {
+    if (index === 0 || index % 10 === 7) return "large";
+    if (index === 2 || index % 10 === 9) return "empty";
+    return "small";
+};
+
+const storeCategories = [
+    "Electronics",
+    "Fashion",
+    "Home & Living",
+    "Beauty",
+    "Sports",
+    "Grocery",
+    "Toys",
+    "Books",
+];
+
+const storeStatuses: { weight: number; value: StoreStatus }[] = [
+    { weight: 8, value: "Active" },
+    { weight: 2, value: "Inactive" },
+    { weight: 1, value: "Suspended" },
+];
+
+const stockStatusFor = (quantity: number): StockStatus => {
+    if (quantity === 0) return "Out of Stock";
+    if (quantity <= LOW_STOCK_LEVEL) return "Low Stock";
+    return "In Stock";
+};
+
+const createStock = (id: string, storeCreatedAt: Date): Stock => {
+    const discontinued = faker.number.int({ min: 1, max: 20 }) === 1;
+    // Roughly 1 in 8 out of stock, 1 in 4 running low, the rest well stocked
+    const quantity = discontinued
+        ? 0
+        : faker.helpers.weightedArrayElement([
+              { weight: 1, value: 0 },
+              { weight: 2, value: faker.number.int({ min: 1, max: LOW_STOCK_LEVEL }) },
+              { weight: 5, value: faker.number.int({ min: LOW_STOCK_LEVEL + 1, max: 500 }) },
+          ]);
+    return {
+        id,
+        sku: faker.string.alphanumeric({ length: 8, casing: "upper" }),
+        productName: faker.commerce.productName(),
+        category: faker.commerce.department(),
+        price: Number(faker.commerce.price({ min: 1, max: 999 })),
+        quantity,
+        status: discontinued ? "Discontinued" : stockStatusFor(quantity),
+        updatedAt: faker.date.between({ from: storeCreatedAt, to: NOW }),
+    };
+};
+
+const stores: EcommerceStore[] = [];
+const stocksByStoreId = new Map<string, Stock[]>();
+
+for (let index = 0; index < STORE_COUNT; index++) {
+    const id = `st-${String(index + 1).padStart(3, "0")}`;
+    const size = storeSizeFor(index);
+    const createdAt = faker.date.between({ from: new Date(2022, 0, 1), to: NOW });
+
+    const stockCount =
+        size === "large"
+            ? faker.number.int({ min: 60, max: 120 })
+            : size === "small"
+              ? faker.number.int({ min: 3, max: 15 })
+              : 0;
+    const stocks = Array.from({ length: stockCount }, (_, i) =>
+        createStock(`stk-${id.slice(3)}-${String(i + 1).padStart(3, "0")}`, createdAt),
+    );
+    // Rounded to cents, so float sums don't show up as long decimals
+    const totalStockValue =
+        Math.round(stocks.reduce((sum, stock) => sum + stock.price * stock.quantity, 0) * 100) /
+        100;
+
+    stores.push({
+        id,
+        name: faker.company.name(),
+        owner: `${faker.person.firstName()} ${faker.person.lastName()}`,
+        location: faker.location.city(),
+        category: faker.helpers.arrayElement(storeCategories),
+        createdAt,
+        productCount: stocks.length,
+        totalStockValue,
+        // A store with nothing to sell isn't open yet
+        status: size === "empty" ? "Inactive" : faker.helpers.weightedArrayElement(storeStatuses),
+    });
+    stocksByStoreId.set(id, stocks);
+}
+
+export const db = { classes, attendeesByClassId, stores, stocksByStoreId };

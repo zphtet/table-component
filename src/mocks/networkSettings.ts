@@ -11,7 +11,7 @@ export type Latency = "instant" | "realistic" | "slow" | "very-slow";
 export type ErrorMode = "off" | "random" | "always";
 /** How a failing request fails: an HTTP status with a `{ message }` body, or no response at all */
 export type ErrorType = 400 | 404 | 500 | "network";
-export type Endpoint = "classes" | "attendees";
+export type Endpoint = "classes" | "attendees" | "stores" | "stocks";
 export type Target = "all" | Endpoint;
 
 export type NetworkSettings = {
