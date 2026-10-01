@@ -11,18 +11,34 @@ export class HttpError extends Error {
     }
 }
 
+const send = async (url: string, init?: RequestInit) => {
+    try {
+        return await fetch(url, init);
+    } catch {
+        // fetch only rejects when no response arrived
+        throw new Error("Network error. Check your connection and try again.");
+    }
+};
+
+// Every mock response, errors included, is JSON
+const isJson = (res: Response) => res.headers.get("content-type")?.includes("application/json");
+
 /**
  * `fetch` + `res.json()` that throws on failure, so TanStack Query ends up in its error state:
  * - no response at all (offline, dropped connection) → `Error` with a network message
  * - 4xx/5xx → `HttpError` carrying the status and the backend's `{ message }`
+ *
+ * A response that isn't JSON missed the mock API: the browser stopped the mock service worker and it
+ * came back without this tab on its list, so the request went to the server, which sends index.html.
+ * Turn mocking back on and send the request once more.
  */
 export const fetchJson = async <T>(url: string, init?: RequestInit): Promise<T> => {
-    let res: Response;
-    try {
-        res = await fetch(url, init);
-    } catch {
-        // fetch only rejects when no response arrived
-        throw new Error("Network error. Check your connection and try again.");
+    let res = await send(url, init);
+    if (!isJson(res)) {
+        const { reactivateMocking } = await import("@/mocks/browser");
+        await reactivateMocking();
+        res = await send(url, init);
+        if (!isJson(res)) throw new Error("The mock API isn't running. Reload the page.");
     }
 
     if (!res.ok) {

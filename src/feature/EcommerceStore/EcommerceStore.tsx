@@ -1,7 +1,7 @@
 import Table from "@/components/Table/Table";
 import { storeColumns } from "./columns";
 import { useQuery } from "@tanstack/react-query";
-import { fetchJson } from "@/lib/fetchJson";
+import { fetchJson, retryUnlessClientError } from "@/lib/fetchJson";
 import type { PaginatedResponse } from "@/types/api.types";
 import type { EcommerceStore } from "@/types/data.types";
 import { useState } from "react";
@@ -14,7 +14,7 @@ export const EcommerceStoreDemo = () => {
 
     const [pagination, setPagination] = useState<BasePagination>(DEFAULT_PAGINATION)
     const [sorts, setSorts] = useState<Sort[] | []>([])
-    const { isLoading, isError, data, refetch } = useQuery({
+    const { isLoading, isError, error, data, refetch } = useQuery({
         queryKey: ['ecommerce-stores', { ...pagination, sorts }],
         queryFn: () => {
             const params = new URLSearchParams({
@@ -23,7 +23,8 @@ export const EcommerceStoreDemo = () => {
             });
             if (sorts.length > 0) params.set('sort', toSortParam(sorts))
             return fetchJson<PaginatedResponse<EcommerceStore>>(`/api/stores?${params}`)
-        }
+        },
+        retry: retryUnlessClientError,
     })
 
     return <div className="mx-auto max-w-7xl space-y-4 px-4 py-8 sm:px-6">
@@ -35,6 +36,7 @@ export const EcommerceStoreDemo = () => {
                 isLoading={isLoading}
                 onRetry={refetch}
                 isError={isError}
+                error={error}
                 ariaLabel="Ecommerce Stores"
                 columns={storeColumns}
                 data={data?.data || []}
