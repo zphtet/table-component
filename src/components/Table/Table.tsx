@@ -114,7 +114,10 @@ const Table = <T extends object, K extends keyof T>(props: TableProps<T, K>) => 
             <div
                 role="region"
                 tabIndex={0}
-                className={cn("w-full overflow-x-auto", maxHeight != null && "overflow-y-auto")}
+                className={cn(
+                    "@container w-full overflow-x-auto overscroll-x-contain",
+                    maxHeight != null && "overflow-y-auto",
+                )}
                 style={{
                     maxHeight: maxHeight != null ? toCss(maxHeight) : undefined,
                 }}

@@ -43,8 +43,7 @@ export const TableRow = <T extends object, K extends keyof T>({
         <>
             <tr
                 className={cn(
-                    // Borders sit on top of each row, so the expand panel and the last row need no special casing
-                    // group/row: pinned cells repeat the row's hover color on their solid background
+
                     "group/row border-t border-gray-100 transition-colors first:border-t-0 hover:bg-gray-50/80 dark:border-gray-800/70 dark:hover:bg-gray-900/40",
                     show && "bg-gray-50/80 dark:bg-gray-900/40",
                 )}
@@ -124,10 +123,10 @@ export const TableRow = <T extends object, K extends keyof T>({
             {hasExpand && (
                 <tr aria-hidden={!show}>
                     <td colSpan={columnCount} className="p-0">
-                        {/* Animating grid rows 0fr → 1fr lets the panel grow to its content's height */}
+
                         <div
                             className={cn(
-                                "grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none",
+                                "sticky left-0 grid w-[100cqw] transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none",
                                 show ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
                             )}
                         >

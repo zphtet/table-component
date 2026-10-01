@@ -32,7 +32,6 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 140,
         dataKey: "instructor",
-        pinned: "right",
     },
 
     {
@@ -41,7 +40,6 @@ export const columns: ColumnDef<FitnessClass>[] = [
         sortable: true,
         width: 130,
         dataKey: "room",
-        pinned: "right",
     },
 
     {
@@ -62,7 +60,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         id: "capacity",
         header: "Capacity",
         sortable: true,
-        align: "right",
+        // align: "right",
         width: 110,
         dataKey: "capacity",
         cellClassName: "tabular-nums",
@@ -72,7 +70,7 @@ export const columns: ColumnDef<FitnessClass>[] = [
         id: "attendeeCount",
         header: "Booked",
         sortable: true,
-        align: "right",
+        // align: "right",
         width: 110,
         dataKey: "attendeeCount",
         cellClassName: "tabular-nums",

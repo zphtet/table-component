@@ -72,9 +72,10 @@ export const orderColumns = <T>(columns: ColumnDef<T>[]) => [
 
 // Built-in columns before the data columns. The ids can't clash with a data column's id.
 export const SELECT_COLUMN_ID = "__select";
-export const SELECT_COLUMN_WIDTH = 44;
+// Just wider than the checkbox (16px) and the chevron button (24px)
+export const SELECT_COLUMN_WIDTH = 32;
 export const EXPAND_COLUMN_ID = "__expand";
-export const EXPAND_COLUMN_WIDTH = 40;
+export const EXPAND_COLUMN_WIDTH = 28;
 
 /** Offset per pinned column = widths of the pinned columns between it and its edge */
 export const getPinInfo = <T>(columns: ColumnDef<T>[], leadingColumns: LeadingColumn[] = []) => {
@@ -120,10 +121,6 @@ export const pinClass = (pin: PinInfo | undefined) =>
             "shadow-[inset_1px_0_0_var(--color-gray-200)] dark:shadow-[inset_1px_0_0_var(--color-gray-800)]",
     );
 
-/**
- * Solid backgrounds for pinned cells, so scrolled columns don't show through. They match the
- * translucent row colors as they look over the table's own background.
- */
 export const pinnedBg = {
     header: "bg-gray-50 dark:bg-gray-900",
     body: "bg-white dark:bg-gray-950",
