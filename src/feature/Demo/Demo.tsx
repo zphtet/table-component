@@ -64,7 +64,7 @@ export const Demo = () => {
                 // pagination
                 pagination={{
                     value: { page: 1, size: 10, total: data.length },
-                    pageSizeOptions: [5, 10, 20],
+                    pageSizeOptions: [5, 10, 20, 50],
                 }}
                 // sorting
                 sorting={{
