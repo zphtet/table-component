@@ -15,6 +15,9 @@ Open http://localhost:5173. There's no backend to run, because the API is mocked
 
 Other scripts: `npm run typecheck`, `npm run lint`, `npm run build`.
 
+- **Live URL:** [Live URL](https://table-component-wine.vercel.app/)
+- **Stack:** React 19, TypeScript, Vite, Tailwindcss , Tanstack Query
+
 ## Mock API (MSW)
 
 There's no real backend. [MSW](https://mswjs.io) runs a service worker in the browser that answers the app's `/api/*` requests, so the requests show up in the Network tab like real ones.
@@ -39,18 +42,18 @@ import { Table } from "@/components/Table";
 
 `ariaLabel`, `columns`, `data` and `getRowIdFn` are required. Everything else is optional, and passing a prop turns that feature on:
 
-| Prop | What it does |
-|---|---|
-| `pagination` | `{ value, changeFn, pageSizeOptions, isManual }`, shows the pagination bar |
-| `sorting` | `{ value, changeFn, isMultiSort, isManual }`, makes `isSortable` headers clickable |
-| `selection` | `{ value, changeFn }`, adds a checkbox column |
-| `renderExpandedFn` | `({ row }) => ReactNode`, adds an expand chevron and a panel under each row |
-| `expansion` | `{ value, changeFn }`, controls which rows are expanded |
-| `isLoading` | shows skeleton rows |
-| `isError`, `error`, `retryFn` | shows an error row with a Retry button |
-| `renderErrorFn`, `renderEmptyFn` | replace the default error and empty states |
-| `isHeaderSticky`, `maxHeight` | keep the header visible while the body scrolls |
-| `skeletonRows` | number of skeleton rows (defaults to the page size) |
+| Prop                             | What it does                                                                       |
+| -------------------------------- | ---------------------------------------------------------------------------------- |
+| `pagination`                     | `{ value, changeFn, pageSizeOptions, isManual }`, shows the pagination bar         |
+| `sorting`                        | `{ value, changeFn, isMultiSort, isManual }`, makes `isSortable` headers clickable |
+| `selection`                      | `{ value, changeFn }`, adds a checkbox column                                      |
+| `renderExpandedFn`               | `({ row }) => ReactNode`, adds an expand chevron and a panel under each row        |
+| `expansion`                      | `{ value, changeFn }`, controls which rows are expanded                            |
+| `isLoading`                      | shows skeleton rows                                                                |
+| `isError`, `error`, `retryFn`    | shows an error row with a Retry button                                             |
+| `renderErrorFn`, `renderEmptyFn` | replace the default error and empty states                                         |
+| `isHeaderSticky`, `maxHeight`    | keep the header visible while the body scrolls                                     |
+| `skeletonRows`                   | number of skeleton rows (defaults to the page size)                                |
 
 **Controlled or not.** `pagination`, `sorting`, `selection` and `expansion` all take `{ value, changeFn }`. If you pass `changeFn`, you own the state and the table shows your `value`. If you leave it out, `value` is just the starting value and the table keeps the state itself.
 
@@ -107,19 +110,19 @@ For a column that isn't one field, like row actions, leave out `dataKey`. `cell`
 { id: "actions", header: "", cell: ({ row }) => <EditButton id={row.id} /> }
 ```
 
-| Option | Description |
-|---|---|
-| `id` | Required. Unique column id; also the sort key sent to the server |
-| `header` | Required. Header content (any `ReactNode`) |
-| `dataKey` | The row field to show |
-| `cell` | `({ row, value }) => ReactNode`, custom cell content |
-| `width` | Fixed width: a number (px) or a CSS length like `"20%"` |
-| `minWidth` | For columns without `width`: the narrowest it gets before the table scrolls sideways |
-| `pinned` | `"left"` or `"right"`, keeps the column visible when scrolling sideways. Needs a numeric `width` |
-| `align` | `"left"`, `"center"` or `"right"` |
-| `isSortable` | Makes the header clickable to sort |
-| `isWrapped` | Wraps long text instead of cutting it off with "…" |
-| `headerClassName`, `cellClassName` | Extra classes for the header and body cells |
+| Option                             | Description                                                                                      |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `id`                               | Required. Unique column id; also the sort key sent to the server                                 |
+| `header`                           | Required. Header content (any `ReactNode`)                                                       |
+| `dataKey`                          | The row field to show                                                                            |
+| `cell`                             | `({ row, value }) => ReactNode`, custom cell content                                             |
+| `width`                            | Fixed width: a number (px) or a CSS length like `"20%"`                                          |
+| `minWidth`                         | For columns without `width`: the narrowest it gets before the table scrolls sideways             |
+| `pinned`                           | `"left"` or `"right"`, keeps the column visible when scrolling sideways. Needs a numeric `width` |
+| `align`                            | `"left"`, `"center"` or `"right"`                                                                |
+| `isSortable`                       | Makes the header clickable to sort                                                               |
+| `isWrapped`                        | Wraps long text instead of cutting it off with "…"                                               |
+| `headerClassName`, `cellClassName` | Extra classes for the header and body cells                                                      |
 
 ## Expandable rows
 
