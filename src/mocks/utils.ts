@@ -11,8 +11,8 @@ import {
 } from "./networkSettings";
 
 const errorMessages: Record<Exclude<ErrorType, "network">, (endpoint: Endpoint) => string> = {
-    400: (endpoint) => `Bad Request  : 400`,
-    404: (endpoint) => `Not Found : 404`,
+    400: (_endpoint) => `Bad Request  : 400`,
+    404: (_endpoint) => `Not Found : 404`,
     500: () => "Server Error",
 };
 
