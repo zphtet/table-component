@@ -7,7 +7,7 @@ import { fitnessClassesData } from "@/mocks/data";
 import { generateFitnessClasses, getAttendees } from "@/mocks/largeData";
 
 // 20 = the hand-written classes; the rest are generated, for stress-testing
-const DATASET_SIZES = [20, 100, 1_000, 10_000];
+const DATASET_SIZES = [20, 100, 1_000, 10_000, 100_000];
 
 export const Demo = () => {
     const [selectedIds, setSelectedIds] = useState<SelectedId[]>([]);

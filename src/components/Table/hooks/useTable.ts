@@ -6,6 +6,7 @@ import type {
     SelectionProps,
     SortingProps,
 } from "../types";
+import { useDeferredValue, useMemo } from "react";
 import { sortRows } from "../utils";
 import { useExpansion } from "./useExpansion";
 import { usePagination } from "./usePagination";
@@ -35,14 +36,17 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
 
     const { pagination: paginationState, setPage, setSize } = usePagination(pagination);
     const { sorts, toggleSort } = useSorting(sorting);
+    const rowSorts = useDeferredValue(sorts);
+    const isSorting = sorts !== rowSorts;
 
     const { page, size } = paginationState;
     const start = (page - 1) * size;
-    // Each flag only skips its own step, so sorting and paging can each run on the client or the server.
-    // Server-side sorting: `data` already arrives in order, so sorting it again could reorder it wrongly
-    // Client-side: sort the full data first, then slice, so sorting applies across all pages
-    const sortedRows = sorting.isManual ? data : sortRows(data, sorts, columns);
-    // Server-side paging: `data` is already the current page, so slicing it again would empty page 2+
+
+    const sortedRows = useMemo(
+        () => (sorting.isManual ? data : sortRows(data, rowSorts, columns)),
+        [data, rowSorts, columns, sorting.isManual],
+    );
+
     const rows = pagination.isManual ? sortedRows : sortedRows.slice(start, start + size);
 
     // After `rows`: select all / deselect all act on the rows of the current page
@@ -57,6 +61,7 @@ export const useTable = <T extends object>(props: UseTableOptions<T>) => {
         setSize,
         sorts,
         toggleSort,
+        isSorting,
         ...selectionState,
         ...expansionState,
     };

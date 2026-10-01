@@ -187,7 +187,7 @@ for (let index = 0; index < CLASS_COUNT; index++) {
 }
 
 // Stores come after the classes, so adding them doesn't change the classes' random values
-const STORE_COUNT = 100;
+const STORE_COUNT = 500;
 const LOW_STOCK_LEVEL = 10;
 
 type StoreSize = "large" | "small" | "empty";

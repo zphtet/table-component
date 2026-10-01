@@ -90,6 +90,7 @@ export const Table = <T extends object>(props: TableProps<T>) => {
         isSomeSelected,
         isExpanded,
         toggleExpand,
+        isSorting,
     } = useTable({
         columns: orderedColumns,
         data,
@@ -119,7 +120,7 @@ export const Table = <T extends object>(props: TableProps<T>) => {
             >
                 {/* create export btn that */}
                 <table
-                    aria-busy={isLoading}
+                    aria-busy={isLoading || isSorting}
                     aria-label={ariaLabel}
                     className="w-full table-fixed border-collapse text-sm"
                     style={{
@@ -188,7 +189,8 @@ export const Table = <T extends object>(props: TableProps<T>) => {
                         </tr>
                     </thead>
 
-                    <tbody>
+                    {/* Dimmed while a client-side sort catches up with the header */}
+                    <tbody className={cn("transition-opacity", isSorting && "opacity-60")}>
                         {isLoading && (
                             <TableSkeleton
                                 columns={orderedColumns}

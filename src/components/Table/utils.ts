@@ -1,12 +1,9 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { BasePagination, ColumnDef, ComputedColumn, DataColumn, Sort } from "./types";
 
-/** Where a pinned column sticks; see `getPinInfo` */
 export type PinInfo = {
-    /** `left` or `right` offset */
     style: CSSProperties;
     side: "left" | "right";
-    /** The pinned column next to the scrolling ones, which draws the divider line */
     isEdge: boolean;
 };
 
@@ -24,7 +21,8 @@ const formatValue = (value: unknown): ReactNode => {
     return String(value);
 };
 
-const isComputedColumn = <T,>(col: ColumnDef<T>): col is ComputedColumn<T> => col.dataKey === undefined;
+const isComputedColumn = <T>(col: ColumnDef<T>): col is ComputedColumn<T> =>
+    col.dataKey === undefined;
 
 export const renderCell = <T extends object>(col: ColumnDef<T>, row: T): ReactNode => {
     if (isComputedColumn(col)) return col.cell({ row });
@@ -45,18 +43,16 @@ export const alignClass = {
 
 export const toCss = (size: number | string) => (typeof size === "number" ? `${size}px` : size);
 
+const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
+
 /** Compares two cell values ascending: numbers and dates by value, strings naturally ("Room 2" < "Room 10"), case-insensitive. */
 const compareValues = (a: unknown, b: unknown) => {
     if (a instanceof Date && b instanceof Date) return a.getTime() - b.getTime();
     if (typeof a === "number" && typeof b === "number") return a - b;
     if (typeof a === "boolean" && typeof b === "boolean") return Number(a) - Number(b);
-    return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: "base" });
+    return collator.compare(String(a), String(b));
 };
 
-/**
- * Sorts a copy of `rows` by each sort in order: the first sort wins, later ones break ties.
- * Empty values (null/undefined) always go last, whatever the direction.
- */
 export const sortRows = <T extends object>(rows: T[], sorts: Sort[], columns: ColumnDef<T>[]) => {
     const active = sorts
         .map((sort) => ({ sort, col: columns.find((col) => col.id === sort.columnId) }))
