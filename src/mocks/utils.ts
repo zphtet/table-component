@@ -11,9 +11,9 @@ import {
 } from "./networkSettings";
 
 const errorMessages: Record<Exclude<ErrorType, "network">, (endpoint: Endpoint) => string> = {
-    400: (endpoint) => `Simulated bad request: invalid query for ${endpoint}`,
-    404: (endpoint) => `Simulated not found: ${endpoint} doesn't exist`,
-    500: () => "Simulated server error",
+    400: (endpoint) => `Bad Request  : 400`,
+    404: (endpoint) => `Not Found : 404`,
+    500: () => "Server Error",
 };
 
 const latencyMs: Record<Exclude<Latency, "realistic">, number> = {
